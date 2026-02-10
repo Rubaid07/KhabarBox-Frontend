@@ -23,7 +23,7 @@ const navItems = [
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-3">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 md:gap-4">
 
@@ -115,15 +115,13 @@ export default function Navbar() {
             </Button>
 
             <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm" className="px-3 border border-black hover:border-white">
+              <Button asChild variant="ghost" size="sm" className="px-3 border border-black hover:bg-gray-100">
                 <Link href="/login">Log in</Link>
               </Button>
               <Button asChild size="sm" className="px-3">
-                <Link href="/register">Sign up</Link>
+                <Link href="/signup">Sign up</Link>
               </Button>
             </div>
-
-
           </div>
         </div>
       </div>
