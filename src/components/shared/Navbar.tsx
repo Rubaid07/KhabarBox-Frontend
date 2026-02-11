@@ -123,7 +123,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/auth/sign-out`, {
+      const response = await fetch(`${process.env.AUTH_URL}/sign-out`, {
         method: "POST",
         credentials: "include",
       });
@@ -331,10 +331,9 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
+                    className="relative h-8 w-8 rounded-full bg-gray-400"
                   >
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-7 w-7">
                       <AvatarImage
                         src={user.image || undefined}
                         alt={user.name}

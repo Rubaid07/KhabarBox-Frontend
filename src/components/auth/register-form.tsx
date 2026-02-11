@@ -77,7 +77,7 @@ export function RegisterForm() {
       }
 
       const updateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/update-user`,
+        `${process.env.AUTH_URL}/update-user`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
