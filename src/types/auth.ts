@@ -1,4 +1,7 @@
-export type UserRole = "CUSTOMER" | "PROVIDER" | "ADMIN";
+import { Roles } from "@/constants/roles";
+
+
+export type UserRole = typeof Roles[keyof typeof Roles];
 
 export interface RegisterInput {
   name: string;

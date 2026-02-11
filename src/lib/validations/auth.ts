@@ -1,3 +1,4 @@
+import { Roles } from "@/constants/roles";
 import { z } from "zod";
 
 export const registerSchema = z
@@ -20,7 +21,7 @@ export const registerSchema = z
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
         "Password must contain at least one uppercase letter, one lowercase letter, and one number"
       ),
-    role: z.enum(["CUSTOMER", "PROVIDER", "ADMIN"]),
+    role: z.nativeEnum(Roles),
     
     restaurantName: z.string().optional(),
     address: z.string().optional(),
@@ -28,7 +29,7 @@ export const registerSchema = z
   })
   .refine(
     (data) => {
-      if (data.role === "PROVIDER") {
+      if (data.role === Roles.provider) {
         return (
           data.restaurantName &&
           data.restaurantName.length >= 2 &&

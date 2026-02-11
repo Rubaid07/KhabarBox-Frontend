@@ -1,5 +1,6 @@
 "use client";
 
+import { Roles } from "@/constants/roles";
 import { UserRole } from "@/types/auth";
 import { ChefHat, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,14 +13,14 @@ interface RoleSelectorProps {
 
 const roles = [
   {
-    id: "CUSTOMER" as UserRole,
+    id: Roles.customer,
     label: "Customer",
     description: "Order delicious meals",
     icon: User,
     color: "bg-blue-500",
   },
   {
-    id: "PROVIDER" as UserRole,
+    id: Roles.provider,
     label: "Provider",
     description: "Sell your food",
     icon: ChefHat,

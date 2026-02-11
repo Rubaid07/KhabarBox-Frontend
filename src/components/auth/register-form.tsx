@@ -36,6 +36,7 @@ import { RoleSelector } from "./role-selector";
 import { registerSchema, RegisterFormData } from "@/lib/validations/auth";
 import { authClient } from "@/lib/auth-client";
 import { UserRole } from "@/types/auth";
+import { Roles } from "@/constants/roles";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export function RegisterForm() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      role: "CUSTOMER",
+      role: Roles.customer,
     },
   });
 
@@ -92,8 +93,7 @@ export function RegisterForm() {
         console.warn("Failed to update user metadata");
       }
 
-      
-      if (data.role === "PROVIDER" && data.restaurantName && data.address) {
+      if (data.role === Roles.provider && data.restaurantName && data.address) {
         const profileResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/provider/profile`,
           {
@@ -149,7 +149,6 @@ export function RegisterForm() {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Role Selection */}
           <div className="space-y-3">
             <Label className="text-base font-semibold">
               I want to register as:
@@ -166,7 +165,6 @@ export function RegisterForm() {
 
           <Separator />
 
-          {/* Common Fields */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
@@ -257,8 +255,7 @@ export function RegisterForm() {
             </div>
           </div>
 
-          {/* Provider Specific Fields */}
-          {selectedRole === "PROVIDER" && (
+          {selectedRole === Roles.provider && (
             <div className="space-y-4 rounded-lg border bg-orange-50/50 p-4 dark:bg-orange-950/20">
               <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
                 <Store className="h-5 w-5" />

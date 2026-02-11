@@ -2,7 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, ShoppingCart, Search } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Menu,
+  ShoppingCart,
+  Search,
+  User,
+  LogOut,
+  Loader2,
+  Shield,
+  ChefHat,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +23,20 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { Roles } from "@/constants/roles";
+import { authClient } from "@/lib/auth-client";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -20,13 +45,176 @@ const navItems = [
   { label: "Offers", href: "/offers" },
 ];
 
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  image?: string | null;
+  role: string;
+}
+
 export default function Navbar() {
+  const router = useRouter();
+  const [user, setUser] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
+
+  const fetchCartCount = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/cart`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const totalItems =
+          data.data?.items?.reduce(
+            (sum: number, item: { quantity: number }) => sum + item.quantity,
+            0,
+          ) || 0;
+        setCartCount(totalItems);
+      }
+    } catch (error) {
+      console.error("Failed to fetch cart:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const getSession = async () => {
+      try {
+        const { data, error } = await authClient.getSession();
+        if (isMounted) {
+          if (!error && data?.user) {
+            setUser(data.user as unknown as UserData);
+          } else {
+            setUser(null);
+          }
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setUser(null);
+          setIsLoading(false);
+        }
+      }
+    };
+    getSession();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (user?.role === Roles.customer) {
+      const loadCart = async () => {
+        if (isMounted) {
+          await fetchCartCount();
+        }
+      };
+      loadCart();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.role, fetchCartCount]);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/sign-out`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        toast.success("Logged out successfully");
+        setUser(null);
+        setCartCount(0);
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error("Failed to logout");
+    }
+  };
+
+  const getDashboardLink = (role: string) => {
+    switch (role) {
+      case Roles.admin:
+        return "/admin";
+      case Roles.provider:
+        return "/provider/dashboard";
+      default:
+        return "/orders";
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case Roles.admin:
+        return <Shield className="h-3 w-3 mr-1" />;
+      case Roles.provider:
+        return <ChefHat className="h-3 w-3 mr-1" />;
+      default:
+        return <User className="h-3 w-3 mr-1" />;
+    }
+  };
+
+  const getRoleBadgeVariant = (
+    role: string,
+  ): "destructive" | "default" | "secondary" => {
+    switch (role) {
+      case Roles.admin:
+        return "destructive";
+      case Roles.provider:
+        return "default";
+      default:
+        return "secondary";
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-3">
+        <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center gap-2 md:gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                disabled
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <Link href="/" className="flex items-center">
+                <div className="relative h-12 w-34 md:h-12 md:w-40">
+                  <Image
+                    src="/logo.png"
+                    alt="Logo"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </Link>
+            </div>
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-3">
       <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 md:gap-4">
-
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="lg:hidden">
@@ -35,9 +223,7 @@ export default function Navbar() {
               </SheetTrigger>
               <SheetContent side="left" className="w-64">
                 <SheetTitle className="hidden">Mobile Menu</SheetTitle>
-
                 <div className="flex flex-col gap-6 pt-6 px-2">
-                  
                   <Link href="/" className="flex items-center gap-2">
                     <div className="relative h-12 w-52">
                       <Image
@@ -60,6 +246,21 @@ export default function Navbar() {
                       </Link>
                     ))}
                   </nav>
+                  {user && user.role === Roles.customer && (
+                    <div className="border-t pt-4 mt-2">
+                      <Link
+                        href="/cart"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <ShoppingCart className="h-4 w-4" /> Cart
+                        {cartCount > 0 && (
+                          <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            {cartCount}
+                          </span>
+                        )}
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
@@ -76,7 +277,6 @@ export default function Navbar() {
               </div>
             </Link>
 
-            
             <nav className="hidden lg:flex items-center gap-1 ml-6">
               {navItems.map((item) => (
                 <Button
@@ -92,7 +292,6 @@ export default function Navbar() {
             </nav>
           </div>
 
-          
           <div className="hidden md:flex flex-1 max-w-md mx-4 outline rounded-sm">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -104,24 +303,105 @@ export default function Navbar() {
             </div>
           </div>
 
-          
           <div className="flex items-center gap-2">
-            
-            <Button variant="ghost" size="icon" asChild className="hidden md:flex">
-              <Link href="/cart">
-                <ShoppingCart className="h-5 w-5" />
-                <span className="sr-only">Cart</span>
-              </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild={!!user && user.role === Roles.customer}
+              disabled={!user || user.role !== Roles.customer}
+              className="flex relative"
+            >
+              {user && user.role === Roles.customer ? (
+                <Link href="/cart">
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                      {cartCount}
+                    </Badge>
+                  )}
+                </Link>
+              ) : (
+                <span>
+                  <ShoppingCart className="h-5 w-5 opacity-50" />
+                </span>
+              )}
             </Button>
 
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm" className="px-3 border border-black hover:bg-gray-100">
-                <Link href="/login">Log in</Link>
-              </Button>
-              <Button asChild size="sm" className="px-3">
-                <Link href="/signup">Sign up</Link>
-              </Button>
-            </div>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={user.image || undefined}
+                        alt={user.name}
+                      />
+                      <AvatarFallback>
+                        {user.name
+                          ?.split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium">{user.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {user.email}
+                    </p>
+                    <div className="flex items-center gap-1 pt-1">
+                      <Badge
+                        variant={getRoleBadgeVariant(user.role)}
+                        className="text-xs capitalize"
+                      >
+                        {getRoleIcon(user.role)} {user.role.toLowerCase()}
+                      </Badge>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" /> Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={getDashboardLink(user.role)}
+                      className="cursor-pointer"
+                    >
+                      <User className="mr-2 h-4 w-4" /> Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-red-600 focus:text-red-600"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="px-3 border border-black hover:bg-gray-100"
+                >
+                  <Link href="/login">Log in</Link>
+                </Button>
+                <Button asChild size="sm" className="px-3">
+                  <Link href="/signup">Sign up</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
