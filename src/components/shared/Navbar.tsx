@@ -123,20 +123,23 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${process.env.AUTH_URL}/sign-out`, {
-        method: "POST",
-        credentials: "include",
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            setUser(null);
+            setCartCount(0);
+            toast.success("Logged out successfully");
+            router.push("/");
+            router.refresh();
+          },
+          onError: (ctx) => {
+            toast.error(ctx.error.message || "Failed to logout");
+          },
+        },
       });
-
-      if (response.ok) {
-        toast.success("Logged out successfully");
-        setUser(null);
-        setCartCount(0);
-        router.push("/");
-        router.refresh();
-      }
     } catch (error) {
-      toast.error("Failed to logout");
+      console.error("Logout Error:", error);
+      toast.error("An unexpected error occurred");
     }
   };
 
@@ -145,7 +148,7 @@ export default function Navbar() {
       case Roles.admin:
         return "/admin";
       case Roles.provider:
-        return "/provider/dashboard";
+        return "/provider/dashboard/overview";
       default:
         return "/orders";
     }
@@ -330,9 +333,7 @@ export default function Navbar() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    className="relative h-8 w-8 rounded-full bg-gray-400"
-                  >
+                  <Button className="relative h-8 w-8 rounded-full bg-gray-400">
                     <Avatar className="h-7 w-7">
                       <AvatarImage
                         src={user.image || undefined}

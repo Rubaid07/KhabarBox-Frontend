@@ -52,10 +52,10 @@ export default function HeroSection() {
                 #1 Food Delivery Platform
               </div>
 
-              <h1 className="text-4xl md:text-6xl xl:text-7xl font-medium leading-tight mb-6 tracking-tight">
-                Craving? <br />
+              <h1 className="text-4xl md:text-6xl xl:text-7xl font-bold leading-[1.1] mb-6 tracking-tight">
+                Deliciousness <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-200">
-                  We Deliver Joy.
+                  At Your Doorstep.
                 </span>
               </h1>
 
@@ -65,41 +65,47 @@ export default function HeroSection() {
                 place.
               </p>
 
-             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-  <Link href="/login" className="w-full sm:w-auto">
-    <Button
-      size="lg"
-      className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-6 sm:px-8 h-11 sm:h-14 text-base sm:text-lg font-medium shadow-[0_0_20px_rgba(234,88,12,0.3)] transition-all w-full cursor-pointer"
-    >
-      Login Now
-    </Button>
-  </Link>
-  
-  <Link href="/signup" className="w-full sm:w-auto">
-    <Button
-      size="lg"
-      variant="outline"
-      className="h-11 sm:h-14 rounded-full border-gray-700 bg-transparent hover:bg-white/5 hover:text-white px-6 sm:px-8 text-base sm:text-lg font-medium transition-all hover:border-orange-500/50 w-full cursor-pointer text-gray-300"
-    >
-      Create Account
-    </Button>
-  </Link>
-</div>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                <Link href="/login" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-6 sm:px-8 h-11 sm:h-14 text-base sm:text-lg font-medium shadow-[0_0_20px_rgba(234,88,12,0.3)] transition-all w-full cursor-pointer"
+                  >
+                    Login Now
+                  </Button>
+                </Link>
+
+                <Link href="/signup" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-11 sm:h-14 rounded-full border-gray-700 bg-transparent hover:bg-white/5 hover:text-white px-6 sm:px-8 text-base sm:text-lg font-medium transition-all hover:border-orange-500/50 w-full cursor-pointer text-gray-300"
+                  >
+                    Create Account
+                  </Button>
+                </Link>
+              </div>
 
               {/* Trust Indicators / Stats */}
               <div className="mt-12 flex items-center gap-6 pt-8 border-t border-white/10">
                 <div>
-                  <p className="md:text-3xl text-2xl font-bold text-white">10k+</p>
+                  <p className="md:text-3xl text-2xl font-bold text-white">
+                    10k+
+                  </p>
                   <p className="text-sm text-gray-500">Happy Users</p>
                 </div>
                 <div className="h-10 w-[1px] bg-white/10" />
                 <div>
-                  <p className="md:text-3xl text-2xl font-bold text-white">500+</p>
+                  <p className="md:text-3xl text-2xl font-bold text-white">
+                    500+
+                  </p>
                   <p className="text-sm text-gray-500">Restaurants</p>
                 </div>
                 <div className="h-10 w-[1px] bg-white/10" />
                 <div>
-                  <p className="md:text-3xl text-2xl font-bold text-white"><span className="hidden sm:inline">⚡</span>Fast</p>
+                  <p className="md:text-3xl text-2xl font-bold text-white">
+                    <span className="hidden sm:inline">⚡</span>Fast
+                  </p>
                   <p className="text-sm text-gray-500">Delivery</p>
                 </div>
               </div>
