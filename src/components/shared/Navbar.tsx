@@ -214,7 +214,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-3">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/90 py-3">
       <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 md:gap-4">
@@ -269,7 +269,7 @@ export default function Navbar() {
             </Sheet>
 
             <Link href="/" className="flex items-center">
-              <div className="relative h-12 w-34 md:h-12 md:w-40">
+              <div className="relative h-12 w-34 md:h-32 md:w-48">
                 <Image
                   src="/logo.png"
                   alt="Logo"
