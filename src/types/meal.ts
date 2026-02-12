@@ -30,3 +30,13 @@ export interface Category {
     meals: number;
   };
 }
+
+export interface UpdateMealInput {
+  name?: string;
+  description?: string;
+  price?: number;
+  imageUrl?: string;
+  dietaryTags?: string[];
+  isAvailable?: boolean;
+  categoryId?: string;
+}

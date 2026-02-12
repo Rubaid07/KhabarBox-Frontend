@@ -157,7 +157,7 @@ export default function MealForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl">
+    <form onSubmit={handleSubmit} className="">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
         
