@@ -8,14 +8,19 @@ import {
   PlusCircle, 
   ShoppingBag, 
   Settings,
-  LogOut
+  LogOut,
+  Users
 } from "lucide-react";
+import Image from "next/image";
 import { Roles } from "@/constants/roles";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface DashboardSidebarProps {
   userRole: string;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const getNavItems = (role: string) => {
@@ -31,16 +36,16 @@ const getNavItems = (role: string) => {
 
   return [
     { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { title: "Users", href: "/admin/users", icon: UtensilsCrossed },
+    { title: "Users", href: "/admin/users", icon: Users },
     { title: "Orders", href: "/admin/orders", icon: ShoppingBag },
+    { title: "Settings", href: "/admin/settings", icon: Settings },
   ];
 };
 
-export default function DashboardSidebar({ userRole }: DashboardSidebarProps) {
+export default function DashboardSidebar({ userRole, isOpen, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = authClient.useSession(); 
-  const user = session?.user;
 
   const handleLogout = async () => {
     try {
@@ -64,44 +69,77 @@ export default function DashboardSidebar({ userRole }: DashboardSidebarProps) {
   const navItems = getNavItems(userRole);
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen sticky top-0 flex flex-col">
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-900">
-          {userRole === Roles.admin ? "Admin Panel" : "Provider Panel"}
-        </h1>
-      </div>
-      
-      <nav className="flex-1 px-4 py-6 space-y-1">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
-          
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-                  : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              {item.title}
-            </Link>
-          );
-        })}
-      </nav>
+    <>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      <div className="p-4 border-t border-gray-200">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-        >
-          <LogOut className="w-5 h-5" />
-          Logout
-        </button>
-      </div>
-    </aside>
+      <aside className={cn(
+        "fixed lg:sticky top-0 z-40 h-screen bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out",
+        "w-72 lg:w-64",
+        isOpen ? "left-0" : "-left-72 lg:left-0",
+        "overflow-y-auto custom-scrollbar"
+      )}>
+        <div className="sticky top-0 bg-white z-10 p-6 border-b border-gray-200">
+          <Link href={`/${userRole}/dashboard/overview`} className="block">
+            <Image
+              src="/logo.png"
+              alt="SOHO"
+              width={120}
+              height={48}
+              className="h-10 w-auto object-contain"
+              priority
+            />
+          </Link>
+        </div>
+        
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const Icon = item.icon;
+            
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => onClose()}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                  "hover:bg-orange-50 hover:text-orange-600 group",
+                  isActive 
+                    ? "bg-orange-50 text-orange-600 border-l-4 border-orange-600"
+                    : "text-gray-700"
+                )}
+              >
+                <Icon className={cn(
+                  "w-5 h-5 transition-colors",
+                  isActive ? "text-orange-600" : "text-gray-500 group-hover:text-orange-600"
+                )} />
+                <span>{item.title}</span>
+                
+                {/* Active indicator */}
+                {isActive && (
+                  <span className="ml-auto w-1.5 h-1.5 bg-orange-600 rounded-full" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout Button */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors group"
+          >
+            <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-600" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

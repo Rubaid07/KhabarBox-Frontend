@@ -1,9 +1,11 @@
+// src/app/(DashboardLayout)/layout.tsx
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { useSession } from "@/lib/auth-client"; 
+import { authClient } from "@/lib/auth-client"; 
+import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 
 interface CustomUser {
@@ -14,40 +16,50 @@ interface CustomUser {
   image?: string | null;
 }
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  const { data: session, isPending, error } = useSession();
+  const { data: session, isPending } = authClient.useSession();
 
-  const isLoading = isPending; 
   const isAuthenticated = !!session?.user;
+  const userRole = (session?.user as CustomUser)?.role || "";
+
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isPending && !isAuthenticated) {
       router.push("/login");
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isPending, isAuthenticated, router]);
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
       </div>
     );
   }
-  if (!isAuthenticated) {
-    return null;
-  }
+
+  if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <DashboardSidebar userRole={(session?.user as CustomUser)?.role || ""} />
-      <main className="flex-1 overflow-auto">
-        <div className="p-6 lg:p-8">{children}</div>
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+    <DashboardSidebar 
+      userRole={userRole}
+      isOpen={isSidebarOpen} 
+      onClose={() => setIsSidebarOpen(false)} 
+    />
+    
+    <div className="flex-1 flex flex-col min-h-screen">
+      <DashboardNavbar 
+        userRole={userRole} 
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+        isSidebarOpen={isSidebarOpen}
+      />
+      
+      <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+        {children}
       </main>
     </div>
+  </div>
   );
 }
