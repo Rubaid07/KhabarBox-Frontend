@@ -137,9 +137,9 @@ export default function TrendingCuisines() {
             <button
               onClick={handlePrev}
               disabled={!canSlideLeft}
-              className={`p-3 rounded-full border-2 transition-all cursor-pointer ${
+              className={`p-3 rounded-full border-2 transition-all ${
                 canSlideLeft
-                  ? "border-gray-300 hover:border-orange-600 hover:bg-orange-50 text-gray-700 hover:text-orange-600 "
+                  ? "border-gray-300 hover:border-orange-600 hover:bg-orange-50 text-gray-700 hover:text-orange-600 cursor-pointer"
                   : "border-gray-200 text-gray-300 cursor-not-allowed"
               }`}
             >
@@ -150,7 +150,7 @@ export default function TrendingCuisines() {
               disabled={!canSlideRight}
               className={`p-3 rounded-full border-2 transition-all ${
                 canSlideRight
-                  ? "border-gray-300 hover:border-orange-600 hover:bg-orange-50 text-gray-700 hover:text-orange-600"
+                  ? "border-gray-300 hover:border-orange-600 hover:bg-orange-50 text-gray-700 hover:text-orange-600 cursor-pointer"
                   : "border-gray-200 text-gray-300 cursor-not-allowed"
               }`}
             >
