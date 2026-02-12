@@ -83,14 +83,14 @@ export default function DashboardSidebar({ userRole, isOpen, onClose }: Dashboar
         isOpen ? "left-0" : "-left-72 lg:left-0",
         "overflow-y-auto custom-scrollbar"
       )}>
-        <div className="sticky top-0 bg-white z-10 p-6 border-b border-gray-200">
-          <Link href={`/${userRole}/dashboard/overview`} className="block">
+        <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-200">
+          <Link href="/" className="block">
             <Image
               src="/logo.png"
-              alt="SOHO"
+              alt="logo"
               width={120}
               height={48}
-              className="h-10 w-auto object-contain"
+              className="h-12 w-34 md:h-12 md:w-40 object-contain"
               priority
             />
           </Link>

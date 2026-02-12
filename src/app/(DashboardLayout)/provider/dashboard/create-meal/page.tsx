@@ -1,10 +1,4 @@
 import MealForm from "@/components/meal/meal-form";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Create New Meal | Provider Dashboard",
-  description: "Add a new meal to your restaurant menu",
-};
 
 export default function CreateMealPage() {
   return (
