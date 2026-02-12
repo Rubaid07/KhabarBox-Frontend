@@ -112,3 +112,17 @@ export const getCategories = async () => {
   
   return response.json();
 };
+
+// popular meals
+export const getPopularMeals = async (limit: number = 8): Promise<Meal[]> => {
+  const response = await fetch(
+    `${API_URL}/meals?sortBy=createdAt&sortOrder=desc&limit=${limit}&isAvailable=true`
+  );
+  
+  if (!response.ok) {
+    throw new Error("Failed to fetch popular meals");
+  }
+
+  const result = await response.json();
+  return Array.isArray(result) ? result : result.data;
+};
