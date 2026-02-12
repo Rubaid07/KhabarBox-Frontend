@@ -333,8 +333,8 @@ export default function Navbar() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="relative h-8 w-8 rounded-full bg-gray-400">
-                    <Avatar className="h-7 w-7">
+                  <Button className="relative h-8 w-8 rounded-full cursor-pointer">
+                    <Avatar className="h-9 w-9 bg-orange-600 hover:bg-orange-700">
                       <AvatarImage
                         src={user.image || undefined}
                         alt={user.name}
