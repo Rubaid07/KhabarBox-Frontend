@@ -31,7 +31,6 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
     try {
       setLoading(true);
       const data = await getPopularMeals(8);
-      console.log(data);
       setMeals(data);
     } catch (error) {
       console.error("Failed to load meals");
@@ -193,7 +192,7 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-bold text-gray-900">
-                      ${Number(meal.price).toFixed(2)}
+                      BDT {Number(meal.price)}
                     </span>
                   </div>
 

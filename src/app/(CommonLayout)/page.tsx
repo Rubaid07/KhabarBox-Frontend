@@ -1,3 +1,4 @@
+import FeaturedRestaurants from "@/components/homePage/FeaturedRestaurants";
 import HeroSection from "@/components/homePage/hero/hero";
 import PopularMeals from "@/components/homePage/PopularMeals";
 import TrendingCuisines from "@/components/homePage/TrendingCuisines";
@@ -8,6 +9,7 @@ export default function Home() {
       <HeroSection />
       <TrendingCuisines />
       <PopularMeals />
+      <FeaturedRestaurants />
     </div>
   );
 }
