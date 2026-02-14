@@ -2,7 +2,7 @@ import { Restaurant } from "@/types/restaurant";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-export const getFeaturedRestaurants = async (): Promise<Restaurant[]> => {
+export const getAllRestaurants = async (): Promise<Restaurant[]> => {
   const response = await fetch(`${API_URL}/provider/profile`);
 
   if (!response.ok) {

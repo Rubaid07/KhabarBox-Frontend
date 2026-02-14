@@ -116,8 +116,8 @@ export default function FeaturedRestaurants() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {restaurants.map((restaurant, index) => {
             const imageUrl = restaurant.logoUrl || restaurant.user?.image;
-            const rating = restaurant.user?.averageRating || 0;
-            const reviewCount = restaurant.user?.totalReviews || 0;
+            const rating = restaurant.averageRating || 0;
+            const reviewCount = restaurant.totalReviews || 0;
             const mealCount = restaurant.user?._count?.meals || 0;
 
             return (
@@ -166,9 +166,9 @@ export default function FeaturedRestaurants() {
                   <div className="flex items-center justify-center -mt-8 mb-4 ">
                     <div className="flex items-center gap-1 px-4 py-2 bg-white rounded-full shadow-lg border border-orange-100 z-50">
                       <Star className="w-5 h-5 text-orange-500 fill-orange-500" />
-                      <span className="font-bold text-gray-900 text-lg">
-                        {rating.toFixed(1)}
-                      </span>
+                      <div className="font-bold text-gray-900 text-lg">
+                        {rating > 0 ? rating.toFixed(1) : "N/A"}
+                      </div>
                       <span className="text-gray-500 text-sm">
                         ({reviewCount} reviews)
                       </span>

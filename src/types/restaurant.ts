@@ -7,14 +7,16 @@ export interface Restaurant {
   address: string;
   logoUrl?: string;
   isVerified: boolean;
+  openingHours: string;
+  averageRating: number; 
+  totalReviews: number;
   user: {
+    email: string;
     name: string;
     image?: string;
     _count: {
       meals: number;
     };
-    averageRating?: number;
-    totalReviews?: number;
   };
 }
 
