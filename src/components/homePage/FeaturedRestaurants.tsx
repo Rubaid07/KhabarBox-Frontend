@@ -6,14 +6,11 @@ import { Restaurant } from "@/types/restaurant";
 import { toast } from "sonner";
 import {
   Star,
-  Clock,
-  Bike,
   BadgeCheck,
   ChevronRight,
   MapPin,
   UtensilsCrossed,
   TrendingUp,
-  Flame,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -126,15 +123,8 @@ export default function FeaturedRestaurants() {
                 href={`/restaurants/${restaurant.userId}`}
                 className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                {/* Top Rated Badge */}
-                {index < 3 && (
-                  <div className="absolute top-4 left-4 z-10 flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg">
-                    <Flame className="w-3 h-3" />#{index + 1} TOP RATED
-                  </div>
-                )}
-
                 {/* Cover Image Section */}
-                <div className="relative h-40 bg-gradient-to-br from-orange-50 to-red-50 overflow-hidden flex items-center justify-center">
+                <div className="relative h-40 bg-linear-to-br from-orange-50 to-red-50 overflow-hidden flex items-center justify-center">
                   {/* Decorative Background */}
                   <div className="absolute inset-0 opacity-30">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-orange-200 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -190,19 +180,6 @@ export default function FeaturedRestaurants() {
                       {restaurant.description ||
                         "Delicious food prepared with love and fresh ingredients"}
                     </p>
-                  </div>
-
-                  {/* Stats Row */}
-                  <div className="flex items-center justify-center gap-6 mt-5 pt-5 border-t border-gray-100">
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <Clock className="w-4 h-4 text-orange-400" />
-                      <span>25-40 min</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <Bike className="w-4 h-4 text-orange-400" />
-                      <span>Free</span>
-                    </div>
                   </div>
 
                   {/* Meals Available */}

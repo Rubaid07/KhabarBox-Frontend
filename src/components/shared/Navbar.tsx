@@ -214,7 +214,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/90 py-3">
+    <header className="sticky top-0 z-50 w-full bg-white py-3">
       <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 md:gap-4">
@@ -233,7 +233,7 @@ export default function Navbar() {
                         src="/logo.png"
                         alt="Logo"
                         fill
-                        className="object-contain object-left"
+                        className="object-contain object-left px-3"
                         priority
                       />
                     </div>
@@ -269,12 +269,12 @@ export default function Navbar() {
             </Sheet>
 
             <Link href="/" className="flex items-center">
-              <div className="relative h-12 w-34 md:h-32 md:w-48">
+              <div className="relative h-26 w-38">
                 <Image
                   src="/logo.png"
                   alt="Logo"
                   fill
-                  className="object-contain object-left md:object-center"
+                  className="object-contain"
                   priority
                 />
               </div>

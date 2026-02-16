@@ -11,6 +11,32 @@ export interface Meal {
   createdAt: string;
   updatedAt: string;
   category?: Category;
+  averageRating?: number;
+  totalReviews?: number;
+  
+  reviews?: Review[];
+  provider?: {
+    id: string;
+    name: string;
+    providerProfile?: {
+      restaurantName: string;
+      address: string;
+      logoUrl?: string;
+      isVerified: boolean;
+    };
+  };
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  customer: {
+    id: string;
+    name: string;
+    image?: string;
+  };
 }
 
 export interface CreateMealInput {

@@ -4,15 +4,9 @@ import { useEffect, useState } from "react";
 import { getPopularMeals } from "@/lib/api-meals";
 import { Meal } from "@/types/meal";
 import { toast } from "sonner";
-import {
-  ShoppingCart,
-  Star,
-  Clock,
-  Flame,
-  ChevronRight,
-  Plus,
-} from "lucide-react";
+import { ShoppingCart, Flame, ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PopularMealsProps {
   onAddToCart?: (meal: Meal) => void;
@@ -39,7 +33,10 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
     }
   };
 
-  const handleAddToCart = (meal: Meal) => {
+  const handleAddToCart = (e: React.MouseEvent, meal: Meal) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (onAddToCart) {
       onAddToCart(meal);
     }
@@ -57,13 +54,12 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
               <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
               <div className="h-4 bg-gray-200 rounded w-64 mt-2 animate-pulse" />
             </div>
-            <div className="h-10 bg-gray-200 rounded w-32 animate-pulse" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="bg-gray-100 rounded-xl h-96 animate-pulse"
+                className="bg-gray-100 rounded-xl h-80 animate-pulse"
               />
             ))}
           </div>
@@ -104,18 +100,21 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
         {/* Meals Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {meals.map((meal, index) => (
-            <div
+            <Link
               key={meal.id}
-              className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              href={`/meals/${meal.id}`}
+              className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 block"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              {/* Image Container */}
-              <div className="relative aspect-square bg-gray-100 overflow-hidden">
+              {/* Image Container - Fixed aspect ratio */}
+              <div className="relative aspect-4/3 bg-gray-100 overflow-hidden">
                 {meal.imageUrl ? (
-                  <img
-                    src={meal.imageUrl}
+                  <Image
+                    src={`${meal.imageUrl}?width=400&height=300`}
                     alt={meal.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
@@ -123,7 +122,7 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
                   </div>
                 )}
 
-                {/* Badges */}
+                {/* Badges - Top Left */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
                   {index < 3 && (
                     <span className="px-2 py-1 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
@@ -138,11 +137,11 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
                   )}
                 </div>
 
-                {/* Quick Add Button */}
+                {/* Add Button - Bottom Right (Fixed Position) */}
                 <button
-                  onClick={() => handleAddToCart(meal)}
+                  onClick={(e) => handleAddToCart(e, meal)}
                   disabled={!meal.isAvailable || addedToCart === meal.id}
-                  className={`absolute bottom-3 right-3 p-3 rounded-full shadow-lg transition-all transform translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 ${
+                  className={`absolute bottom-3 right-3 p-3 rounded-full shadow-lg transition-all transform translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-10 ${
                     addedToCart === meal.id
                       ? "bg-green-500 text-white"
                       : "bg-white text-gray-900 hover:bg-orange-600 hover:text-white"
@@ -188,29 +187,16 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
                   </div>
                 )}
 
-                {/* Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-gray-900">
-                      BDT {Number(meal.price)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      4.5
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      25-35 min
-                    </span>
-                  </div>
+                {/* Price */}
+                <div className="pt-3 border-t border-gray-100">
+                  <span className="text-2xl font-bold text-gray-900">
+                    BDT {Number(meal.price)}
+                  </span>
                 </div>
 
                 {/* Mobile Add Button */}
                 <button
-                  onClick={() => handleAddToCart(meal)}
+                  onClick={(e) => handleAddToCart(e, meal)}
                   disabled={!meal.isAvailable}
                   className="w-full mt-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed sm:hidden flex items-center justify-center gap-2"
                 >
@@ -218,7 +204,7 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
                   Add to Cart
                 </button>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
