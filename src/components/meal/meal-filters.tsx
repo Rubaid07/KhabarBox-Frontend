@@ -1,10 +1,21 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Hash, Search, SlidersHorizontal, X, Clock, TrendingUp, ChevronRight } from "lucide-react";
+import { 
+  Hash, 
+  Search, 
+  SlidersHorizontal, 
+  X, 
+  Clock, 
+  TrendingUp, 
+  ChevronRight,
+  UtensilsCrossed
+} from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 import { useState, useRef, useEffect } from "react";
 import { getSuggestions, SuggestionResponse } from "@/lib/api-suggestions";
+import { getAllCategories } from "@/lib/api-categories";
+import { Category } from "@/types/meal";
 import Link from "next/link";
 
 // Recent searches from localStorage
@@ -31,14 +42,26 @@ export default function MealFilters() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
   const [tagValue, setTagValue] = useState(searchParams.get("dietaryTags") || "");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("categoryId") || "");
   
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Load recent searches on mount
+  // Load categories on mount
   useEffect(() => {
+    loadCategories();
     setRecentSearches(getRecentSearches());
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      const data = await getAllCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to load categories");
+    }
+  };
 
   // Click outside to close suggestions
   useEffect(() => {
@@ -96,6 +119,21 @@ export default function MealFilters() {
     params.set("dietaryTags", tag);
     setTagValue(tag);
     setShowSuggestions(false);
+    router.push(`/meals?${params.toString()}`);
+  };
+
+  // Handle category selection
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    
+    if (categoryId) {
+      params.set("categoryId", categoryId);
+    } else {
+      params.delete("categoryId");
+    }
+    
     router.push(`/meals?${params.toString()}`);
   };
 
@@ -166,8 +204,47 @@ export default function MealFilters() {
     ...suggestions.tags.map(t => ({ type: "tag" as const, value: t })),
   ];
 
+  // Get selected category name
+  const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.name;
+
   return (
     <div className="space-y-4">
+      {/* Category Pills - Quick Filter */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <button
+          onClick={() => handleCategoryChange("")}
+          className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            !selectedCategory
+              ? "bg-orange-500 text-white"
+              : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+          }`}
+        >
+          All Cuisines
+        </button>
+        {categories.slice(0, 8).map((category) => (
+          <button
+            key={category.id}
+            onClick={() => handleCategoryChange(category.id)}
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+              selectedCategory === category.id
+                ? "bg-orange-500 text-white"
+                : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+            }`}
+          >
+            <UtensilsCrossed className="w-4 h-4" />
+            {category.name}
+          </button>
+        ))}
+        {categories.length > 8 && (
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
+          >
+            +{categories.length - 8} more
+          </button>
+        )}
+      </div>
+
       <div className="flex flex-col md:flex-row gap-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
           {/* Main Search with Suggestions */}
@@ -300,7 +377,7 @@ export default function MealFilters() {
             )}
           </div>
 
-          {/* Tag Search - Simple version without suggestions */}
+          {/* Tag Search */}
           <div className="relative">
             <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -329,6 +406,9 @@ export default function MealFilters() {
           >
             <SlidersHorizontal className="w-5 h-5" />
             <span>Filters</span>
+            {selectedCategory && (
+              <span className="ml-1 w-2 h-2 bg-white rounded-full" />
+            )}
           </button>
 
           {hasFilters && (
@@ -337,6 +417,7 @@ export default function MealFilters() {
                 router.push("/meals");
                 setSearchValue("");
                 setTagValue("");
+                setSelectedCategory("");
               }}
               className="px-4 py-3 text-gray-500 hover:text-red-500 font-medium transition-colors"
               title="Clear all filters"
@@ -347,8 +428,44 @@ export default function MealFilters() {
         </div>
       </div>
 
+      {/* Active Filter Badge */}
+      {selectedCategory && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">Filtered by:</span>
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+            <UtensilsCrossed className="w-4 h-4" />
+            {selectedCategoryName}
+            <button
+              onClick={() => handleCategoryChange("")}
+              className="ml-1 hover:bg-orange-200 rounded-full p-0.5"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </span>
+        </div>
+      )}
+
       {showAdvanced && (
-        <div className="pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2">
+        <div className="pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-top-2">
+          {/* Category Dropdown (if not selected from pills) */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Cuisine Type
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
+            >
+              <option value="">All Cuisines</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name} ({cat._count?.meals || 0} meals)
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Price Range */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">

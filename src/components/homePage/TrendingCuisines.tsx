@@ -1,4 +1,3 @@
-// components/homePage/TrendingCuisines.tsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -175,7 +174,7 @@ export default function TrendingCuisines() {
             {categories.map((category) => (
               <Link
                 key={category.id}
-                href={`/categories/${category.id}`}
+                href={`/meals?categoryId=${category.id}`}  // Redirect to meals with filter
                 className="flex-shrink-0 group"
                 style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
               >
@@ -203,6 +202,13 @@ export default function TrendingCuisines() {
 
                   {/* Hover Effect */}
                   <div className="absolute inset-0 bg-orange-600/0 group-hover:bg-orange-600/10 transition-colors" />
+                  
+                  {/* Click Hint */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="px-4 py-2 bg-white/90 text-gray-900 rounded-full text-sm font-medium">
+                      Browse {category.name}
+                    </span>
+                  </div>
                 </div>
               </Link>
             ))}

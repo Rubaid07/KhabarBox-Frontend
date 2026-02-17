@@ -43,6 +43,7 @@ export default function SingleMealPage() {
       setLoading(true);
       const mealData = await getMealById(mealId);
       setMeal(mealData);
+      console.log(mealData);
 
       if (mealData.providerId) {
         const restaurantData = await getRestaurantById(mealData.providerId);
@@ -211,6 +212,17 @@ export default function SingleMealPage() {
                       {tag}
                     </span>
                   ))}
+                </div>
+              )}
+
+              {meal.category?.name && (
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-3">
+                  <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Category:
+                  </span>
+                  <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium border border-orange-100">
+                    {meal.category.name}
+                  </span>
                 </div>
               )}
             </div>

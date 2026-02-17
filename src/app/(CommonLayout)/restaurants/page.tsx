@@ -64,7 +64,6 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   const rating = restaurant.averageRating || 0;
   const reviewCount = restaurant.totalReviews || 0;
   const mealCount = restaurant.user?._count?.meals || 0;
-  console.log(restaurant);
 
   return (
     <Link
