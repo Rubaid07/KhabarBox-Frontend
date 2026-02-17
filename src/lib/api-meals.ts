@@ -1,4 +1,4 @@
-import { CreateMealInput, Meal, UpdateMealInput } from "@/types/meal";
+import { CreateMealInput, Meal, MealFilterParams, UpdateMealInput } from "@/types/meal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -125,4 +125,49 @@ export const getPopularMeals = async (limit: number = 8): Promise<Meal[]> => {
 
   const result = await response.json();
   return Array.isArray(result) ? result : result.data;
+};
+
+export const getAllMeals = async (filters: MealFilterParams) => {
+  const query = new URLSearchParams();
+
+  query.set("page", (filters.page || 1).toString());
+  query.set("limit", (filters.limit || 12).toString());
+
+  if (filters.search) query.set("search", filters.search);
+  if (filters.categoryId) query.set("categoryId", filters.categoryId);
+
+  if (filters.minPrice !== undefined && filters.minPrice !== null) {
+    query.set("minPrice", filters.minPrice.toString());
+  }
+  if (filters.maxPrice !== undefined && filters.maxPrice !== null) {
+    query.set("maxPrice", filters.maxPrice.toString());
+  }
+
+  if (filters.dietaryTags && filters.dietaryTags.length > 0) {
+    query.set("dietaryTags", filters.dietaryTags.join(","));
+  }
+
+  if (filters.sortBy) query.set("sortBy", filters.sortBy);
+  if (filters.sortOrder) query.set("sortOrder", filters.sortOrder);
+
+  if (filters.isAvailable !== undefined) {
+    query.set("isAvailable", filters.isAvailable.toString());
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const url = `${baseUrl}/meals?${query.toString()}`;
+  
+  console.log("Fetching from:", url);
+
+  const res = await fetch(url, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    console.error("Backend Error:", errorData);
+    throw new Error(errorData.message || "Failed to fetch meals");
+  }
+
+  return res.json();
 };

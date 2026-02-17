@@ -102,9 +102,9 @@ export default function SingleMealPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       {/* Simple Navigation */}
-      <div className="border-b border-gray-100">
+      <div className="sticky top-22 z-10 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="">
             <button

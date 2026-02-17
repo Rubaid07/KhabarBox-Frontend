@@ -125,7 +125,7 @@ export default function RestaurantProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sticky Navigation */}
-      <nav className="sticky top-22 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <nav className="sticky top-22 z-10 bg-white border-b border-gray-200 shadow-sm">
         <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button 
@@ -133,7 +133,7 @@ export default function RestaurantProfilePage() {
               className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
-              <span className="hidden sm:inline font-medium">Back</span>
+              <span className="inline font-medium">Back</span>
             </button>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function RestaurantProfilePage() {
       </div>
 
       {/* Info Bar */}
-      <div className="bg-white border-b border-gray-200 sticky top-[73px] z-40">
+      <div className="bg-white border-b border-gray-200 z-40">
         <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap items-center gap-4 md:gap-8 text-sm">
             {/* Rating */}

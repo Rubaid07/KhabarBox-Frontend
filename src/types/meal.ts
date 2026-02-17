@@ -66,3 +66,16 @@ export interface UpdateMealInput {
   isAvailable?: boolean;
   categoryId?: string;
 }
+
+export interface MealFilterParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  categoryId?: string;
+  minPrice?: number | string;
+  maxPrice?: number | string;
+  dietaryTags?: string[];
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  isAvailable?: boolean;
+}
