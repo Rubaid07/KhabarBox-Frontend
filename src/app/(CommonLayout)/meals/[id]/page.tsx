@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getMealById } from "@/lib/api-meals";
+import { addToCart } from "@/lib/api-cart";
 import { getRestaurantById } from "@/lib/api-restaurants";
 import { Meal } from "@/types/meal";
 import { Restaurant } from "@/types/restaurant";
@@ -58,8 +59,17 @@ export default function SingleMealPage() {
     }
   };
 
-  const addToCart = () => {
-    toast.success(`${quantity}x ${meal?.name} added to cart!`);
+  const handleAddToCart = async () => {
+    if (!meal) return;
+
+    try {
+      await addToCart({ mealId: meal.id, quantity });
+      toast.success(`${quantity}x ${meal.name} added to cart!`);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to add to cart";
+      toast.error(message);
+    }
   };
 
   const incrementQty = () => setQuantity((prev) => prev + 1);
@@ -339,7 +349,7 @@ export default function SingleMealPage() {
 
               {/* Add to Cart Button */}
               <button
-                onClick={addToCart}
+                onClick={handleAddToCart}
                 disabled={!meal.isAvailable}
                 className="w-full py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >

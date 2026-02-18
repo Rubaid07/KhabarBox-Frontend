@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getPopularMeals } from "@/lib/api-meals";
+import { addToCart } from "@/lib/api-cart";
 import { Meal } from "@/types/meal";
 import { toast } from "sonner";
 import { ShoppingCart, Flame, ChevronRight, Plus } from "lucide-react";
@@ -33,17 +34,20 @@ export default function PopularMeals({ onAddToCart }: PopularMealsProps) {
     }
   };
 
-  const handleAddToCart = (e: React.MouseEvent, meal: Meal) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleAddToCart = async (e: React.MouseEvent, meal: Meal) => {
+  e.preventDefault();
+  e.stopPropagation();
 
-    if (onAddToCart) {
-      onAddToCart(meal);
-    }
+  try {
+    await addToCart({ mealId: meal.id, quantity: 1 });
     setAddedToCart(meal.id);
     toast.success(`${meal.name} added to cart!`);
     setTimeout(() => setAddedToCart(null), 2000);
-  };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to add to cart";
+    toast.error(errorMessage);
+  }
+};
 
   if (loading) {
     return (

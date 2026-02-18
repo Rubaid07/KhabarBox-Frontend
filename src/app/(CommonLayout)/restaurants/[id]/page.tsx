@@ -20,20 +20,20 @@ import {
   UtensilsCrossed,
   Info,
   Plus,
-  Minus
+  Minus,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function RestaurantProfilePage() {
   const params = useParams();
   const router = useRouter();
   const userId = params.id as string;
-  
+
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [cart, setCart] = useState<Record<string, number>>({});
   const [activeCategory, setActiveCategory] = useState("all");
 
   useEffect(() => {
@@ -45,56 +45,34 @@ export default function RestaurantProfilePage() {
       setLoading(true);
       const [restaurantData, allMeals] = await Promise.all([
         getRestaurantById(userId),
-        getPopularMeals(50)
+        getPopularMeals(50),
       ]);
-      
+
       setRestaurant(restaurantData);
-      const restaurantMeals = allMeals.filter(m => m.providerId === userId);
+      const restaurantMeals = allMeals.filter((m) => m.providerId === userId);
       setMeals(restaurantMeals);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to load restaurant";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to load restaurant";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const addToCart = (meal: Meal) => {
-    setCart(prev => ({
-      ...prev,
-      [meal.id]: (prev[meal.id] || 0) + 1
-    }));
-    toast.success(`${meal.name} added to cart!`);
-  };
-
-  const removeFromCart = (mealId: string) => {
-    setCart(prev => {
-      const newCart = { ...prev };
-      if (newCart[mealId] > 1) newCart[mealId]--;
-      else delete newCart[mealId];
-      return newCart;
-    });
-  };
-
-  const getCartTotal = () => {
-    return Object.entries(cart).reduce((total, [mealId, qty]) => {
-      const meal = meals.find(m => m.id === mealId);
-      return total + (meal?.price || 0) * qty;
-    }, 0);
-  };
-
-  const getCartCount = () => {
-    return Object.values(cart).reduce((a, b) => a + b, 0);
-  };
-
-  const filteredMeals = meals.filter(meal => {
-    const matchesSearch = meal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         meal.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === "all" || meal.category?.name === activeCategory;
+  const filteredMeals = meals.filter((meal) => {
+    const matchesSearch =
+      meal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      meal.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      activeCategory === "all" || meal.category?.name === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ["all", ...new Set(meals.map(m => m.category?.name).filter(Boolean))];
+  const categories = [
+    "all",
+    ...new Set(meals.map((m) => m.category?.name).filter(Boolean)),
+  ];
 
   const rating = restaurant?.averageRating;
   const reviewCount = restaurant?.totalReviews || 0;
@@ -113,8 +91,13 @@ export default function RestaurantProfilePage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <UtensilsCrossed className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900">Restaurant not found</h2>
-          <Link href="/" className="text-orange-600 mt-4 inline-block hover:underline">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Restaurant not found
+          </h2>
+          <Link
+            href="/"
+            className="text-orange-600 mt-4 inline-block hover:underline"
+          >
             Go back home
           </Link>
         </div>
@@ -128,7 +111,7 @@ export default function RestaurantProfilePage() {
       <nav className="sticky top-22 z-10 bg-white border-b border-gray-200 shadow-sm">
         <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={() => router.back()}
               className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
             >
@@ -142,7 +125,7 @@ export default function RestaurantProfilePage() {
       {/* Hero Section */}
       <div className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-br from-orange-400 to-red-500">
         <div className="absolute inset-0 bg-black/20" />
-        
+
         {/* Restaurant Info */}
         <div className="absolute bottom-0 left-0 right-0">
           <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">
@@ -150,8 +133,8 @@ export default function RestaurantProfilePage() {
               {/* Logo */}
               <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full shadow-2xl flex items-center justify-center overflow-hidden border-4 border-white shrink-0">
                 {restaurant.logoUrl || restaurant.user?.image ? (
-                  <img 
-                    src={restaurant.logoUrl || restaurant.user?.image} 
+                  <img
+                    src={restaurant.logoUrl || restaurant.user?.image}
                     alt={restaurant.restaurantName}
                     className="w-full h-full object-cover"
                   />
@@ -159,7 +142,7 @@ export default function RestaurantProfilePage() {
                   <span className="text-4xl md:text-5xl">🏪</span>
                 )}
               </div>
-              
+
               <div className="flex-1 text-white pb-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-2xl md:text-4xl font-bold">
@@ -186,11 +169,13 @@ export default function RestaurantProfilePage() {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 bg-orange-50 px-3 py-1.5 rounded-lg">
                 <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
-                <span className="font-bold text-orange-700">{rating?.toFixed(1)}</span>
+                <span className="font-bold text-orange-700">
+                  {rating?.toFixed(1)}
+                </span>
               </div>
               <span className="text-gray-500">({reviewCount} reviews)</span>
             </div>
-            
+
             <div className="flex items-center gap-2 text-gray-600">
               <Bike className="w-4 h-4 text-orange-400" />
               <span>Free delivery</span>
@@ -209,9 +194,8 @@ export default function RestaurantProfilePage() {
       {/* Main Content */}
       <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-          
           {/* Sidebar */}
-          <aside className="lg:w-72 flex-shrink-0 space-y-6">
+          <aside className="lg:w-72 shrink-0 space-y-6">
             {/* About Card */}
             <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -219,9 +203,10 @@ export default function RestaurantProfilePage() {
                 About
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                {restaurant.description || `${restaurant.restaurantName} serves delicious food made with fresh ingredients.`}
+                {restaurant.description ||
+                  `${restaurant.restaurantName} serves delicious food made with fresh ingredients.`}
               </p>
-              
+
               <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
@@ -258,11 +243,12 @@ export default function RestaurantProfilePage() {
                     }`}
                   >
                     {cat === "all" ? "All Items" : cat}
-                    <span className={`ml-2 ${activeCategory === cat ? 'text-orange-100' : 'text-gray-400'}`}>
-                      {cat === "all" 
-                        ? meals.length 
-                        : meals.filter(m => m.category?.name === cat).length
-                      }
+                    <span
+                      className={`ml-2 ${activeCategory === cat ? "text-orange-100" : "text-gray-400"}`}
+                    >
+                      {cat === "all"
+                        ? meals.length
+                        : meals.filter((m) => m.category?.name === cat).length}
                     </span>
                   </button>
                 ))}
@@ -297,126 +283,75 @@ export default function RestaurantProfilePage() {
             </div>
 
             {/* Meals Grid */}
-            {filteredMeals.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-                <UtensilsCrossed className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No items found</h3>
-                <p className="text-gray-500">
-                  {searchQuery ? "Try adjusting your search" : "No menu items available"}
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredMeals.map((meal) => {
-                  const cartQty = cart[meal.id] || 0;
-                  
-                  return (
-                    <div
-                      key={meal.id}
-                      className="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-lg transition-shadow flex gap-4 group"
-                    >
-                      {/* Image */}
-                      <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden">
-                        {meal.imageUrl ? (
-                          <img
-                            src={meal.imageUrl}
-                            alt={meal.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-3xl">
-                            🍽️
-                          </div>
-                        )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredMeals.map((meal) => (
+                <Link
+                  key={meal.id}
+                  href={`/meals/${meal.id}`}
+                  className="bg-white rounded-2xl border border-gray-200 p-4 transition-shadow flex gap-4 group cursor-pointer"
+                >
+                  {/* Image */}
+                  <div className="w-24 h-24 shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
+                    {meal.imageUrl ? (
+                      <Image
+                        src={meal.imageUrl}
+                        alt={meal.name}
+                        fill
+                        className="object-cover "
+                        style={{ objectPosition: "center center" }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl">
+                        🍽️
                       </div>
+                    )}
+                  </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <h4 className="font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors">
-                              {meal.name}
-                            </h4>
-                            <p className="text-gray-500 text-sm line-clamp-2 mt-1">
-                              {meal.description || "Delicious meal"}
-                            </p>
-                          </div>
-                          <span className="font-bold text-orange-600">BDT {Number(meal.price)}</span>
-                        </div>
-
-                        {/* Tags */}
-                        {meal.dietaryTags?.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {meal.dietaryTags.slice(0, 2).map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded-full font-medium"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Add to Cart / Quantity */}
-                        {cartQty > 0 ? (
-                          <div className="mt-3 flex items-center gap-3">
-                            <button
-                              onClick={() => removeFromCart(meal.id)}
-                              className="w-8 h-8 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center hover:bg-orange-200 transition-colors"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <span className="font-bold text-gray-900 w-6 text-center">{cartQty}</span>
-                            <button
-                              onClick={() => addToCart(meal)}
-                              className="w-8 h-8 bg-orange-500 text-white rounded-lg flex items-center justify-center hover:bg-orange-600 transition-colors"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => addToCart(meal)}
-                            disabled={!meal.isAvailable}
-                            className="mt-3 w-full py-2.5 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 transition-colors flex items-center justify-center gap-2"
-                          >
-                            <Plus className="w-4 h-4" />
-                            {meal.isAvailable ? "Add to Cart" : "Unavailable"}
-                          </button>
-                        )}
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors">
+                          {meal.name}
+                        </h4>
+                        <p className="text-gray-500 text-sm line-clamp-2 mt-1">
+                          {meal.description || "Delicious meal"}
+                        </p>
                       </div>
+                     
                     </div>
-                  );
-                })}
-              </div>
-            )}
+
+                    {/* Tags */}
+                    {meal.dietaryTags?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {meal.dietaryTags.slice(0, 2).map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded-full font-medium"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* View Details Button */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <button className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors flex items-center gap-1">
+                        View Details
+                        <ChevronLeft className="w-3 h-3 rotate-180" />
+                      </button>
+                       <span className="font-bold text-orange-600">
+                        BDT {Number(meal.price)}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </main>
         </div>
       </div>
-
-      {/* Floating Cart Bar */}
-      {getCartCount() > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-          <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                  <ShoppingCart className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900">{getCartCount()} items</p>
-                  <p className="text-sm text-gray-500">Total: {Number(getCartTotal())}</p>
-                </div>
-              </div>
-              <button className="px-6 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors flex items-center gap-2">
-                View Cart
-                <ChevronLeft className="w-4 h-4 rotate-180" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

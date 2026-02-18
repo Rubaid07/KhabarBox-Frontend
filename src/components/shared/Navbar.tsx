@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Menu,
@@ -35,8 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Roles } from "@/constants/roles";
 import { authClient } from "@/lib/auth-client";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { useCart } from "@/hooks/useCart";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -57,26 +56,7 @@ export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [cartCount, setCartCount] = useState(0);
-
-  const fetchCartCount = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_URL}/cart`, {
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const totalItems =
-          data.data?.items?.reduce(
-            (sum: number, item: { quantity: number }) => sum + item.quantity,
-            0,
-          ) || 0;
-        setCartCount(totalItems);
-      }
-    } catch (error) {
-      console.error("Failed to fetch cart:", error);
-    }
-  }, []);
+  const { cartCount } = useCart();
 
   useEffect(() => {
     let isMounted = true;
@@ -104,30 +84,12 @@ export default function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    if (user?.role === Roles.customer) {
-      const loadCart = async () => {
-        if (isMounted) {
-          await fetchCartCount();
-        }
-      };
-      loadCart();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user?.role, fetchCartCount]);
-
   const handleLogout = async () => {
     try {
       await authClient.signOut({
         fetchOptions: {
           onSuccess: () => {
             setUser(null);
-            setCartCount(0);
             toast.success("Logged out successfully");
             router.push("/");
             router.refresh();
@@ -184,23 +146,12 @@ export default function Navbar() {
         <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                disabled
-              >
+              <Button variant="ghost" size="icon" className="lg:hidden" disabled>
                 <Menu className="h-5 w-5" />
               </Button>
               <Link href="/" className="flex items-center">
                 <div className="relative h-12 w-34 md:h-12 md:w-40">
-                  <Image
-                    src="/logo.png"
-                    alt="Logo"
-                    fill
-                    className="object-contain"
-                    priority
-                  />
+                  <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
                 </div>
               </Link>
             </div>
@@ -217,6 +168,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full bg-white py-3 shadow-sm">
       <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
+          {/* Left side */}
           <div className="flex items-center gap-2 md:gap-4">
             <Sheet>
               <SheetTrigger asChild>
@@ -229,84 +181,46 @@ export default function Navbar() {
                 <div className="flex flex-col gap-6 pt-6 px-2">
                   <Link href="/" className="flex items-center gap-2">
                     <div className="relative h-12 w-52">
-                      <Image
-                        src="/logo.png"
-                        alt="Logo"
-                        fill
-                        className="object-contain object-left px-3"
-                        priority
-                      />
+                      <Image src="/logo.png" alt="Logo" fill className="object-contain object-left px-3" priority />
                     </div>
                   </Link>
                   <nav className="flex flex-col gap-4">
                     {navItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-                      >
+                      <Link key={item.href} href={item.href} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
                         {item.label}
                       </Link>
                     ))}
                   </nav>
-                  {user && user.role === Roles.customer && (
-                    <div className="border-t pt-4 mt-2">
-                      <Link
-                        href="/cart"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-                      >
-                        <ShoppingCart className="h-4 w-4" /> Cart
-                        {cartCount > 0 && (
-                          <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {cartCount}
-                          </span>
-                        )}
-                      </Link>
-                    </div>
-                  )}
                 </div>
               </SheetContent>
             </Sheet>
 
             <Link href="/" className="flex items-center">
               <div className="relative h-26 w-38">
-                <Image
-                  src="/logo.png"
-                  alt="Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+                <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
               </div>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1 ml-6">
               {navItems.map((item) => (
-                <Button
-                  key={item.href}
-                  asChild
-                  variant="ghost"
-                  size="sm"
-                  className="text-sm font-medium"
-                >
+                <Button key={item.href} asChild variant="ghost" size="sm" className="text-sm font-medium">
                   <Link href={item.href}>{item.label}</Link>
                 </Button>
               ))}
             </nav>
           </div>
 
+          {/* Search */}
           <div className="hidden md:flex flex-1 max-w-md mx-4 outline rounded-sm">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search restaurants or dishes..."
-                className="pl-10 w-full"
-              />
+              <Input type="search" placeholder="Search restaurants or dishes..." className="pl-10 w-full" />
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Right side */}
+          <div className="flex items-center gap-4">
+            {/* Cart Button */}
             <Button
               variant="ghost"
               size="icon"
@@ -330,21 +244,15 @@ export default function Navbar() {
               )}
             </Button>
 
+            {/* User Menu */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="relative h-8 w-8 rounded-full cursor-pointer">
-                    <Avatar className="h-9 w-9 bg-orange-600 hover:bg-orange-700">
-                      <AvatarImage
-                        src={user.image || undefined}
-                        alt={user.name}
-                      />
+                  <Button className="relative h-7 w-7 rounded-full cursor-pointer">
+                    <Avatar className="h-8 w-8 bg-orange-600 hover:bg-orange-700">
+                      <AvatarImage src={user.image || undefined} alt={user.name} />
                       <AvatarFallback>
-                        {user.name
-                          ?.split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase() || "U"}
+                        {user.name?.split(" ").map((n) => n[0]).join("").toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -352,14 +260,9 @@ export default function Navbar() {
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5">
                     <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {user.email}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
                     <div className="flex items-center gap-1 pt-1">
-                      <Badge
-                        variant={getRoleBadgeVariant(user.role)}
-                        className="text-xs capitalize"
-                      >
+                      <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs capitalize">
                         {getRoleIcon(user.role)} {user.role.toLowerCase()}
                       </Badge>
                     </div>
@@ -371,30 +274,19 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link
-                      href={getDashboardLink(user.role)}
-                      className="cursor-pointer"
-                    >
+                    <Link href={getDashboardLink(user.role)} className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" /> Dashboard
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="cursor-pointer text-red-600 focus:text-red-600"
-                  >
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
                     <LogOut className="mr-2 h-4 w-4" /> Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="sm"
-                  className="px-3 border border-black hover:bg-gray-100"
-                >
+                <Button asChild variant="ghost" size="sm" className="px-3 border border-black hover:bg-gray-100">
                   <Link href="/login">Log in</Link>
                 </Button>
                 <Button asChild size="sm" className="px-3">

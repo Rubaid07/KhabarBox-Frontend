@@ -1,5 +1,6 @@
 "use client";
 
+import { addToCart } from "@/lib/api-cart";
 import { Meal } from "@/types/meal";
 import { 
   Star, 
@@ -24,12 +25,20 @@ interface MealCardProps {
 export default function MealCard({ meal, index = 0 }: MealCardProps) {
   const [added, setAdded] = useState(false);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    try {
+    await addToCart({ mealId: meal.id, quantity: 1 });
+    
     setAdded(true);
     toast.success(`${meal.name} added to cart!`);
     setTimeout(() => setAdded(false), 2000);
+  } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to add to cart";
+      toast.error(message);
+    }
   };
 
   const getDietaryIcon = (tag: string) => {
