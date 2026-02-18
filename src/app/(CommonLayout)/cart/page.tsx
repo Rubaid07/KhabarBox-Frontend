@@ -11,7 +11,7 @@ import {
   ArrowRight, 
   Store,
   MapPin,
-  CreditCard
+  ArrowLeft
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -137,7 +137,7 @@ export default function CartPage() {
             </div>
             <button
               onClick={handleClearCart}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
               Clear Cart
@@ -161,82 +161,100 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {/* Items */}
-                <div className="divide-y divide-gray-100">
-                  {restaurantItems.map((item) => (
-                    <div key={item.id} className="p-6 flex gap-4">
-                      {/* Image */}
-                      <div className="w-24 h-24 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
-                        {item.meal.imageUrl ? (
-                          <Image
-                            src={item.meal.imageUrl}
-                            alt={item.meal.name}
-                            width={96}
-                            height={96}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-2xl">
-                            🍽️
-                          </div>
-                        )}
-                      </div>
+               {/* Items */}
+<div className="divide-y divide-gray-100">
+  {restaurantItems.map((item) => (
+    <div key={item.id} className="group">
+      {/* Main Row - Clickable */}
+      <Link 
+        href={`/meals/${item.meal.id}`}
+        className="p-6 flex gap-4 hover:bg-gray-50 transition-colors block"
+      >
+        {/* Image */}
+        <div className="w-24 h-24 shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
+          {item.meal.imageUrl ? (
+            <Image
+              src={item.meal.imageUrl}
+              alt={item.meal.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform"
+              style={{ objectPosition: "center center" }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-2xl">
+              🍽️
+            </div>
+          )}
+        </div>
 
-                      {/* Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <h3 className="font-semibold text-gray-900 text-lg">
-                              {item.meal.name}
-                            </h3>
-                            <p className="text-gray-500 text-sm mt-1 line-clamp-2">
-                              {item.meal.description}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => handleRemoveItem(item.id)}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
+        {/* Details */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-semibold text-gray-900 text-lg group-hover:text-orange-600 transition-colors">
+                {item.meal.name}
+              </h3>
+              <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                {item.meal.description}
+              </p>
+            </div>
+          </div>
 
-                        <div className="flex items-center justify-between mt-4">
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                              disabled={updating === item.id || item.quantity <= 1}
-                              className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <span className="w-8 text-center font-semibold">
-                              {updating === item.id ? "..." : item.quantity}
-                            </span>
-                            <button
-                              onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                              disabled={updating === item.id}
-                              className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </div>
+          {/* Price Info */}
+          <div className="mt-3">
+            <p className="text-lg font-bold text-orange-600">
+              BDT {(Number(item.meal.price) * item.quantity).toFixed(0)}
+            </p>
+            <p className="text-sm text-gray-500">
+              BDT {Number(item.meal.price).toFixed(0)} each × {item.quantity}
+            </p>
+          </div>
+        </div>
+      </Link>
 
-                          {/* Price */}
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-orange-600">
-                              ৳{(Number(item.meal.price) * item.quantity).toFixed(0)}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              ৳{Number(item.meal.price).toFixed(0)} each
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+      {/* Actions Row - Separate from Link */}
+      <div className="px-6 pb-6 flex items-center justify-between">
+        {/* Quantity Controls */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleQuantityChange(item.id, item.quantity - 1);
+            }}
+            disabled={updating === item.id || item.quantity <= 1}
+            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+          <span className="w-8 text-center font-semibold">
+            {updating === item.id ? "..." : item.quantity}
+          </span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleQuantityChange(item.id, item.quantity + 1);
+            }}
+            disabled={updating === item.id}
+            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleRemoveItem(item.id)}
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+            title="Remove item"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
               </div>
             ))}
 
@@ -245,7 +263,7 @@ export default function CartPage() {
               href="/meals"
               className="inline-flex items-center gap-2 text-orange-600 font-medium hover:underline"
             >
-              ← Continue Shopping
+              <ArrowLeft /> Continue Shopping
             </Link>
           </div>
 
@@ -259,7 +277,7 @@ export default function CartPage() {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal ({meta.totalItems} items)</span>
-                    <span>৳{meta.totalAmount.toFixed(0)}</span>
+                    <span>BDT {meta.totalAmount.toFixed(0)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Delivery Fee</span>
@@ -267,12 +285,12 @@ export default function CartPage() {
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Tax</span>
-                    <span>৳0</span>
+                    <span>BDT 0</span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-xl font-bold text-gray-900">
                       <span>Total</span>
-                      <span>৳{meta.totalAmount.toFixed(0)}</span>
+                      <span>BDT {meta.totalAmount.toFixed(0)}</span>
                     </div>
                   </div>
                 </div>
@@ -280,7 +298,7 @@ export default function CartPage() {
                 {/* Checkout Button */}
                 <button
                   onClick={() => router.push("/checkout")}
-                  className="w-full py-4 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Proceed to Checkout
                   <ArrowRight className="w-5 h-5" />
