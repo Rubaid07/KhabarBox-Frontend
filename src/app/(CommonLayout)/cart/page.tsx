@@ -202,7 +202,7 @@ export default function CartPage() {
 
           {/* Price Info */}
           <div className="mt-3">
-            <p className="text-lg font-bold text-orange-600">
+            <p className="text-lg font-bold">
               BDT {(Number(item.meal.price) * item.quantity).toFixed(0)}
             </p>
             <p className="text-sm text-gray-500">

@@ -138,7 +138,7 @@ export default function MealCard({ meal, index = 0 }: MealCardProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-xl font-bold text-orange-600">
+          <span className="text-xl font-bold">
             BDT {Number(meal.price).toFixed(0)}
           </span>
 
