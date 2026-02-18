@@ -1,17 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMyCart, updateCartQuantity, removeCartItem, clearCart } from "@/lib/api-cart";
+import {
+  getMyCart,
+  updateCartQuantity,
+  removeCartItem,
+  clearCart,
+} from "@/lib/api-cart";
 import { CartItem, CartMeta } from "@/types/cart";
-import { 
-  Trash2, 
-  Plus, 
-  Minus, 
-  ShoppingBag, 
-  ArrowRight, 
+import {
+  Trash2,
+  Plus,
+  Minus,
+  ShoppingBag,
+  ArrowRight,
   Store,
   MapPin,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -43,7 +48,7 @@ export default function CartPage() {
 
   const handleQuantityChange = async (cartId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    
+
     setUpdating(cartId);
     try {
       await updateCartQuantity(cartId, newQuantity);
@@ -67,7 +72,7 @@ export default function CartPage() {
 
   const handleClearCart = async () => {
     if (!confirm("Are you sure you want to clear your cart?")) return;
-    
+
     try {
       await clearCart();
       await loadCart();
@@ -78,14 +83,19 @@ export default function CartPage() {
   };
 
   // Group items by restaurant
-  const groupedItems = items.reduce((acc, item) => {
-    const restaurantName = item.meal.provider?.providerProfile?.restaurantName || "Unknown Restaurant";
-    if (!acc[restaurantName]) {
-      acc[restaurantName] = [];
-    }
-    acc[restaurantName].push(item);
-    return acc;
-  }, {} as Record<string, CartItem[]>);
+  const groupedItems = items.reduce(
+    (acc, item) => {
+      const restaurantName =
+        item.meal.provider?.providerProfile?.restaurantName ||
+        "Unknown Restaurant";
+      if (!acc[restaurantName]) {
+        acc[restaurantName] = [];
+      }
+      acc[restaurantName].push(item);
+      return acc;
+    },
+    {} as Record<string, CartItem[]>,
+  );
 
   if (loading) {
     return (
@@ -103,9 +113,12 @@ export default function CartPage() {
             <div className="w-32 h-32 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingBag className="w-16 h-16 text-orange-500" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Your Cart is Empty
+            </h1>
             <p className="text-gray-600 mb-8">
-              Looks like you haven&apos;t added any meals yet. Browse our delicious menu and add your favorites!
+              Looks like you haven&apos;t added any meals yet. Browse our
+              delicious menu and add your favorites!
             </p>
             <Link
               href="/meals"
@@ -132,7 +145,8 @@ export default function CartPage() {
                 Shopping Cart
               </h1>
               <p className="text-gray-600 mt-1">
-                {meta.totalItems} {meta.totalItems === 1 ? "item" : "items"} in your cart
+                {meta.totalItems} {meta.totalItems === 1 ? "item" : "items"} in
+                your cart
               </p>
             </div>
             <button
@@ -151,112 +165,131 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
-            {Object.entries(groupedItems).map(([restaurantName, restaurantItems]) => (
-              <div key={restaurantName} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                {/* Restaurant Header */}
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                  <div className="flex items-center gap-2">
-                    <Store className="w-5 h-5 text-orange-500" />
-                    <h2 className="font-semibold text-gray-900">{restaurantName}</h2>
+            {Object.entries(groupedItems).map(
+              ([restaurantName, restaurantItems]) => (
+                <div
+                  key={restaurantName}
+                  className="bg-white rounded-2xl border border-gray-200 overflow-hidden"
+                >
+                  {/* Restaurant Header */}
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <Store className="w-5 h-5 text-orange-500" />
+                      <h2 className="font-semibold text-gray-900">
+                        {restaurantName}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {/* Items */}
+                  <div className="divide-y divide-gray-100">
+                    {restaurantItems.map((item) => (
+                      <div key={item.id} className="group">
+                        {/* Main Row - Clickable */}
+                        <Link
+                          href={`/meals/${item.meal.id}`}
+                          className="p-6 flex gap-4 hover:bg-gray-50 transition-colors block"
+                        >
+                          {/* Image */}
+                          <div className="w-24 h-24 shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
+                            {item.meal.imageUrl ? (
+                              <Image
+                                src={item.meal.imageUrl}
+                                alt={item.meal.name}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform"
+                                style={{ objectPosition: "center center" }}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-2xl">
+                                🍽️
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-4">
+                              <div>
+                                <h3 className="font-semibold text-gray-900 text-lg group-hover:text-orange-600 transition-colors">
+                                  {item.meal.name}
+                                </h3>
+                                <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                                  {item.meal.description}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Price Info */}
+                            <div className="mt-3">
+                              <p className="text-lg font-bold">
+                                BDT{" "}
+                                {(
+                                  Number(item.meal.price) * item.quantity
+                                ).toFixed(0)}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                BDT {Number(item.meal.price).toFixed(0)} each ×{" "}
+                                {item.quantity}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+
+                        {/* Actions Row - Separate from Link */}
+                        <div className="px-6 pb-6 flex items-center justify-between">
+                          {/* Quantity Controls */}
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuantityChange(
+                                  item.id,
+                                  item.quantity - 1,
+                                );
+                              }}
+                              disabled={
+                                updating === item.id || item.quantity <= 1
+                              }
+                              className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span className="w-8 text-center font-semibold">
+                              {updating === item.id ? "..." : item.quantity}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuantityChange(
+                                  item.id,
+                                  item.quantity + 1,
+                                );
+                              }}
+                              disabled={updating === item.id}
+                              className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white cursor-pointer"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleRemoveItem(item.id)}
+                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title="Remove item"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-               {/* Items */}
-<div className="divide-y divide-gray-100">
-  {restaurantItems.map((item) => (
-    <div key={item.id} className="group">
-      {/* Main Row - Clickable */}
-      <Link 
-        href={`/meals/${item.meal.id}`}
-        className="p-6 flex gap-4 hover:bg-gray-50 transition-colors block"
-      >
-        {/* Image */}
-        <div className="w-24 h-24 shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
-          {item.meal.imageUrl ? (
-            <Image
-              src={item.meal.imageUrl}
-              alt={item.meal.name}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform"
-              style={{ objectPosition: "center center" }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-2xl">
-              🍽️
-            </div>
-          )}
-        </div>
-
-        {/* Details */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="font-semibold text-gray-900 text-lg group-hover:text-orange-600 transition-colors">
-                {item.meal.name}
-              </h3>
-              <p className="text-gray-500 text-sm mt-1 line-clamp-2">
-                {item.meal.description}
-              </p>
-            </div>
-          </div>
-
-          {/* Price Info */}
-          <div className="mt-3">
-            <p className="text-lg font-bold">
-              BDT {(Number(item.meal.price) * item.quantity).toFixed(0)}
-            </p>
-            <p className="text-sm text-gray-500">
-              BDT {Number(item.meal.price).toFixed(0)} each × {item.quantity}
-            </p>
-          </div>
-        </div>
-      </Link>
-
-      {/* Actions Row - Separate from Link */}
-      <div className="px-6 pb-6 flex items-center justify-between">
-        {/* Quantity Controls */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleQuantityChange(item.id, item.quantity - 1);
-            }}
-            disabled={updating === item.id || item.quantity <= 1}
-            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <span className="w-8 text-center font-semibold">
-            {updating === item.id ? "..." : item.quantity}
-          </span>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleQuantityChange(item.id, item.quantity + 1);
-            }}
-            disabled={updating === item.id}
-            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleRemoveItem(item.id)}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-            title="Remove item"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-              </div>
-            ))}
+              ),
+            )}
 
             {/* Continue Shopping */}
             <Link
@@ -271,7 +304,9 @@ export default function CartPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-8">
               <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                  Order Summary
+                </h2>
 
                 {/* Price Breakdown */}
                 <div className="space-y-4 mb-6">
@@ -296,6 +331,7 @@ export default function CartPage() {
                 </div>
 
                 {/* Checkout Button */}
+                <Link href="/checkout">
                 <button
                   onClick={() => router.push("/checkout")}
                   className="w-full py-4 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
@@ -303,6 +339,7 @@ export default function CartPage() {
                   Proceed to Checkout
                   <ArrowRight className="w-5 h-5" />
                 </button>
+                </Link>
               </div>
 
               {/* Delivery Info */}
@@ -310,7 +347,9 @@ export default function CartPage() {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-blue-900">Free Delivery</h3>
+                    <h3 className="font-semibold text-blue-900">
+                      Free Delivery
+                    </h3>
                     <p className="text-sm text-blue-700 mt-1">
                       Enter your address at checkout to see delivery options
                     </p>
