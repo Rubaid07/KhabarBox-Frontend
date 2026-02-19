@@ -41,7 +41,7 @@ const navItems = [
   { label: "Home", href: "/" },
   { label: "Meal", href: "/meals" },
   { label: "Restaurants", href: "/restaurants" },
-  { label: "Offers", href: "/offers" },
+  { label: "Orders", href: "/orders" },
 ];
 
 interface UserData {

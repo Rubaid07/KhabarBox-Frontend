@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import { getMyCart, clearCart } from "@/lib/api-cart"; // Add clearCart
 import { createOrder } from "@/lib/api-orders";
 import { CartItem } from "@/types/cart";
-import { 
-  MapPin, 
-  Phone, 
-  FileText, 
-  CreditCard, 
-  Truck, 
+import {
+  MapPin,
+  Phone,
+  FileText,
+  CreditCard,
+  Truck,
   ShieldCheck,
   ChevronLeft,
   Package,
-  Clock
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,7 +25,7 @@ export default function CheckoutPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
+
   // Form states
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -53,7 +53,10 @@ export default function CheckoutPage() {
   };
 
   const getTotalAmount = () => {
-    return items.reduce((sum, item) => sum + (Number(item.meal.price) * item.quantity), 0);
+    return items.reduce(
+      (sum, item) => sum + Number(item.meal.price) * item.quantity,
+      0,
+    );
   };
 
   const getTotalItems = () => {
@@ -62,7 +65,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!deliveryAddress.trim()) {
       toast.error("Please enter delivery address");
       return;
@@ -75,7 +78,7 @@ export default function CheckoutPage() {
     setSubmitting(true);
     try {
       const orderData = {
-        items: items.map(item => ({
+        items: items.map((item) => ({
           mealId: item.mealId,
           quantity: item.quantity,
         })),
@@ -84,17 +87,20 @@ export default function CheckoutPage() {
         notes: notes || undefined,
       };
 
-      const order = await createOrder(orderData);
-      
-      // Clear cart after successful order
+      const orders = await createOrder(orderData);
       try {
         await clearCart();
       } catch (e) {
-        console.log("Cart clear failed, but order placed");
+        console.log("Cart clear failed");
       }
-      
+
       toast.success("Order placed successfully!");
-      router.push(`/orders/${order.id}`);
+
+      if (orders && orders.length > 0) {
+        router.push(`/orders/${orders[0].id}`);
+      } else {
+        router.push("/orders");
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to place order";
       toast.error(message);
@@ -117,7 +123,7 @@ export default function CheckoutPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-4">
-            <Link 
+            <Link
               href="/cart"
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
@@ -220,15 +226,19 @@ export default function CheckoutPage() {
                 <CreditCard className="w-5 h-5 text-orange-500" />
                 Payment Method
               </h2>
-              
+
               <div className="space-y-3">
                 <label className="flex items-center gap-4 p-4 border-2 border-orange-500 bg-orange-50 rounded-xl cursor-pointer">
                   <div className="w-5 h-5 rounded-full border-2 border-orange-500 bg-orange-500 flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-full" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">Cash on Delivery</p>
-                    <p className="text-sm text-gray-500">Pay when you receive</p>
+                    <p className="font-semibold text-gray-900">
+                      Cash on Delivery
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Pay when you receive
+                    </p>
                   </div>
                   <span className="text-2xl">💵</span>
                 </label>
@@ -236,7 +246,9 @@ export default function CheckoutPage() {
                 <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-xl opacity-50">
                   <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">Online Payment</p>
+                    <p className="font-semibold text-gray-900">
+                      Online Payment
+                    </p>
                     <p className="text-sm text-gray-500">Coming soon</p>
                   </div>
                   <span className="text-2xl">💳</span>
@@ -290,7 +302,8 @@ export default function CheckoutPage() {
                           {item.quantity} × BDT {Number(item.meal.price)}
                         </p>
                         <p className="font-semibold text-orange-600 text-sm">
-                          BDT {(Number(item.meal.price) * item.quantity).toFixed(0)}
+                          BDT{" "}
+                          {(Number(item.meal.price) * item.quantity).toFixed(0)}
                         </p>
                       </div>
                     </div>
@@ -322,7 +335,9 @@ export default function CheckoutPage() {
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-orange-500" />
                   <div>
-                    <p className="font-semibold text-gray-900">Estimated Delivery</p>
+                    <p className="font-semibold text-gray-900">
+                      Estimated Delivery
+                    </p>
                     <p className="text-sm text-gray-600">30-45 minutes</p>
                   </div>
                 </div>
