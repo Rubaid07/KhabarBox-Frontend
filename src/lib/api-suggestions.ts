@@ -1,8 +1,24 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+// ✅ Updated interface matching backend
 export interface SuggestionResponse {
-  meals: Array<{ id: string; name: string; imageUrl?: string }>;
+  meals: Array<{
+    id: string;
+    name: string;
+    imageUrl?: string;
+    restaurantName?: string;
+    price?: number;
+  }>;
   tags: string[];
+  restaurants: Array<{
+    id: string;
+    name: string;
+    logoUrl?: string;
+  }>;
+  categories?: Array<{
+    id: string;
+    name: string;
+  }>;
 }
 
 // Simple in-memory cache
@@ -10,7 +26,7 @@ const cache = new Map<string, { data: SuggestionResponse; timestamp: number }>()
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export const getSuggestions = async (query: string): Promise<SuggestionResponse> => {
-  if (!query || query.length < 2) return { meals: [], tags: [] };
+  if (!query || query.length < 2) return { meals: [], tags: [], restaurants: [] };
   
   // Check cache
   const cached = cache.get(query);
