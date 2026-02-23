@@ -86,7 +86,7 @@ export default function ProfilePage() {
                   className="rounded-full object-cover"
                   style={{ borderRadius: "9999px" }}
                 />
-                <AvatarFallback className="bg-orange-600 text-white text-2xl font-medium rounded-full">
+                <AvatarFallback className="bg-orange-600 text-white text-4xl font-medium rounded-full">
                   {profile.name?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
