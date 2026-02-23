@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getOrderById } from "@/lib/api-orders";
 import { Order } from "@/types/order";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { getReviews, Review } from "@/lib/api-reviews";
 import {
   Package,
   ChevronLeft,
@@ -16,6 +18,7 @@ import {
   FileText,
   Printer,
   Download,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -76,6 +79,7 @@ export default function OrderDetailsPage() {
   const orderId = params.id as string;
 
   const [order, setOrder] = useState<Order | null>(null);
+  const [reviews, setReviews] = useState<Record<string, Review[]>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -86,6 +90,21 @@ export default function OrderDetailsPage() {
     try {
       const data = await getOrderById(orderId);
       setOrder(data);
+      
+      // Load reviews for each meal if delivered
+      if (data.status === "DELIVERED") {
+        const reviewPromises = data.orderItems?.map(async (item) => {
+          const reviewData = await getReviews(item.meal.id);
+          return { mealId: item.meal.id, reviews: reviewData.reviews };
+        }) || [];
+        
+        const reviewResults = await Promise.all(reviewPromises);
+        const reviewMap: Record<string, Review[]> = {};
+        reviewResults.forEach((r) => {
+          reviewMap[r.mealId] = r.reviews;
+        });
+        setReviews(reviewMap);
+      }
     } catch (error) {
       toast.error("Failed to load order");
       router.push("/orders");
@@ -94,11 +113,22 @@ export default function OrderDetailsPage() {
     }
   };
 
+  const handleReviewSuccess = () => {
+    toast.success("Review submitted successfully!");
+    loadOrder(); // Refresh to show new review
+  };
+
   const getStatusProgress = (status: OrderStatus) => {
     const steps = ["PLACED", "PREPARING", "READY", "DELIVERED"];
     const currentIndex = steps.indexOf(status);
     if (status === "CANCELLED") return -1;
     return currentIndex;
+  };
+
+  // Check if user already reviewed this meal
+  const hasReviewed = (mealId: string) => {
+    const mealReviews = reviews[mealId] || [];
+    return mealReviews.some((r) => r.customer?.id === order?.customerId);
   };
 
   if (loading) {
@@ -131,6 +161,7 @@ export default function OrderDetailsPage() {
 
   const status = statusConfig[order.status];
   const progress = getStatusProgress(order.status);
+  const isDelivered = order.status === "DELIVERED";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -208,47 +239,79 @@ export default function OrderDetailsPage() {
               )}
             </div>
 
-            {/* Order Items */}
+            {/* Order Items with Review */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Package className="w-5 h-5 text-orange-500" />
                 Order Items
               </h3>
-              <div className="space-y-4">
-                {order.orderItems?.map((item) => (
-                  <div key={item.id} className="flex gap-3">
-                    <div className="w-20 h-20 bg-white rounded-lg overflow-hidden border border-gray-200">
-                      {item.meal.imageUrl ? (
-                        <Image
-                          src={item.meal.imageUrl}
-                          alt={item.meal.name}
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-2xl">
-                          🍽️
+              <div className="space-y-6">
+                {order.orderItems?.map((item) => {
+                  const reviewed = hasReviewed(item.meal.id);
+                  
+                  return (
+                    <div key={item.id} className="border-b last:border-0 pb-6 last:pb-0">
+                      <div className="flex gap-3">
+                        <div className="w-20 h-20 bg-white rounded-lg overflow-hidden border border-gray-200">
+                          {item.meal.imageUrl ? (
+                            <Image
+                              src={item.meal.imageUrl}
+                              alt={item.meal.name}
+                              width={80}
+                              height={80}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-2xl">
+                              🍽️
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
+                            {item.meal.name}
+                          </h4>
+                          <p className="text-sm text-gray-500">
+                            {item.quantity} × BDT{" "}
+                            {Number(item.priceAtTime || item.price)}
+                          </p>
+                        </div>
+                        <p className="font-semibold text-orange-600 text-sm">
+                          BDT{" "}
+                          {(
+                            Number(item.priceAtTime || item.price) * item.quantity
+                          ).toFixed(0)}
+                        </p>
+                      </div>
+
+                      {/* ✅ Review Section - Only for delivered orders */}
+                      {isDelivered && (
+                        <div className="mt-4 pl-23">
+                          {reviewed ? (
+                            <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
+                              <CheckCircle2 className="w-5 h-5" />
+                              <span className="text-sm font-medium">
+                                You have reviewed this item
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="bg-gray-50 rounded-xl p-4">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <Star className="w-4 h-4 text-orange-500" />
+                                Rate this item
+                              </h4>
+                              <ReviewForm
+                                mealId={item.meal.id}
+                                mealName={item.meal.name}
+                                onSuccess={handleReviewSuccess}
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
-                        {item.meal.name}
-                      </h4>
-                      <p className="text-sm text-gray-500">
-                        {item.quantity} × BDT{" "}
-                        {Number(item.priceAtTime || item.price)}
-                      </p>
-                    </div>
-                    <p className="font-semibold text-orange-600 text-sm">
-                      BDT{" "}
-                      {(
-                        Number(item.priceAtTime || item.price) * item.quantity
-                      ).toFixed(0)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
