@@ -156,8 +156,6 @@ export const getAllMeals = async (filters: MealFilterParams) => {
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   const url = `${baseUrl}/meals?${query.toString()}`;
-  
-  console.log("Fetching from:", url);
 
   const res = await fetch(url, {
     cache: "no-store",

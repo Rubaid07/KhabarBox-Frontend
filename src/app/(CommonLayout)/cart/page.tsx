@@ -71,8 +71,6 @@ export default function CartPage() {
   };
 
   const handleClearCart = async () => {
-    if (!confirm("Are you sure you want to clear your cart?")) return;
-
     try {
       await clearCart();
       await loadCart();
@@ -251,7 +249,7 @@ export default function CartPage() {
                               disabled={
                                 updating === item.id || item.quantity <= 1
                               }
-                              className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white"
+                              className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-white cursor-pointer"
                             >
                               <Minus className="w-4 h-4" />
                             </button>

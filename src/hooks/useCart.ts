@@ -1,70 +1,55 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "@/lib/auth-client";
 
 export function useCart() {
   const [cartCount, setCartCount] = useState(0);
-  const isInitialMount = useRef(true);
+  const { data: session, isPending } = useSession();
 
   const refreshCart = useCallback(async () => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-    // ১. টোকেন না থাকলে কার্ট কাউন্ট ০ করে ফাংশন থামিয়ে দিন
-    if (!token) {
+    if (isPending || !session) {
       setCartCount(0);
-      return; 
+      return;
     }
 
     try {
-      const headers: HeadersInit = {
-        "Authorization": `Bearer ${token}`
-      };
-
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
       const response = await fetch(`${API_URL}/cart`, {
         credentials: "include",
-        headers: headers,
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
 
       if (response.ok) {
         const result = await response.json();
-        const totalItems = result.data?.items?.reduce(
+        const items = result.data?.items || [];
+        const totalItems = items.reduce(
           (sum: number, item: { quantity: number }) => sum + item.quantity,
-          0,
-        ) || 0;
+          0
+        );
         setCartCount(totalItems);
-      } else if (response.status === 401 || response.status === 403) {
-        // ২. যদি সার্ভার বলে টোকেন ইনভ্যালিড, তবে কাউন্ট ০ করুন
-        setCartCount(0);
       }
     } catch (error) {
       console.error("Failed to fetch cart:", error);
     }
-  }, []);
+  }, [session, isPending]);
+
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      const timer = setTimeout(() => {
-        refreshCart();
-      }, 0);
-      return () => clearTimeout(timer);
-    }
+    const fetchCartData = async () => {
+      await refreshCart();
+    };
+    
+    fetchCartData();
   }, [refreshCart]);
 
   useEffect(() => {
     const handleCartUpdate = () => {
-      refreshCart();
+      void refreshCart();
     };
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("cartUpdated", handleCartUpdate);
-    }
-
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("cartUpdated", handleCartUpdate);
-      }
-    };
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
   }, [refreshCart]);
 
   return { cartCount, refreshCart };
