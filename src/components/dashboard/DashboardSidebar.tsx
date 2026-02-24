@@ -6,8 +6,7 @@ import {
   LayoutDashboard, 
   UtensilsCrossed, 
   PlusCircle, 
-  ShoppingBag, 
-  Settings,
+  ShoppingBag,
   LogOut,
   Users
 } from "lucide-react";
@@ -29,16 +28,14 @@ const getNavItems = (role: string) => {
       { title: "Dashboard", href: "/provider/dashboard/overview", icon: LayoutDashboard },
       { title: "My Meals", href: "/provider/dashboard/meals", icon: UtensilsCrossed },
       { title: "Add New Meal", href: "/provider/dashboard/create-meal", icon: PlusCircle },
-      { title: "Orders", href: "/provider/dashboard/orders", icon: ShoppingBag },
-      { title: "Settings", href: "/provider/dashboard/settings", icon: Settings },
+      { title: "Orders", href: "/provider/dashboard/orders", icon: ShoppingBag }
     ];
   }
 
   return [
     { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { title: "Users", href: "/admin/users", icon: Users },
-    { title: "Orders", href: "/admin/orders", icon: ShoppingBag },
-    { title: "Settings", href: "/admin/settings", icon: Settings },
+    { title: "Orders", href: "/admin/orders", icon: ShoppingBag }
   ];
 };
 
