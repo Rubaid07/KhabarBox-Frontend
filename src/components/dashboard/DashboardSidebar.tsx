@@ -33,8 +33,8 @@ const getNavItems = (role: string) => {
   }
 
   return [
-    { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { title: "Users", href: "/admin/users", icon: Users },
+    { title: "Dashboard", href: "/admin/dashboard/overview", icon: LayoutDashboard },
+    { title: "Users", href: "/admin/dashboard/users", icon: Users },
     { title: "Orders", href: "/admin/orders", icon: ShoppingBag }
   ];
 };

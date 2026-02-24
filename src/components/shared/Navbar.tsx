@@ -13,7 +13,6 @@ import {
   Loader2,
   Shield,
   ChefHat,
-  X,
   ArrowLeft,
 } from "lucide-react";
 
