@@ -1,28 +1,14 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "CUSTOMER" | "PROVIDER" | "ADMIN";
-  status: "ACTIVE" | "SUSPENDED";
-  createdAt: string;
+interface UserQueryParams {
+  page?: string;
+  limit?: string;
+  role?: string;
+  search?: string;
+  [key: string]: string | undefined;
 }
 
-export interface DashboardStats {
-  users: {
-    total: number;
-    providers: number;
-    customers: number;
-  };
-  orders: {
-    total: number;
-    pending: number;
-  };
-  revenue: number;
-}
-
-export const getDashboardStats = async (): Promise<DashboardStats> => {
+export const getDashboardStats = async () => {
   const res = await fetch(`${API_URL}/admin/stats`, {
     credentials: "include",
   });
@@ -31,20 +17,49 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   return json.data;
 };
 
-export const getAllUsers = async (params?: {
+export const getAllOrders = async (params?: {
   page?: number;
   limit?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}): Promise<{
-  data: User[];
-  meta: { page: number; limit: number; total: number; totalPage: number };
-}> => {
+}) => {
   const query = new URLSearchParams();
   if (params?.page) query.append("page", params.page.toString());
   if (params?.limit) query.append("limit", params.limit.toString());
-  if (params?.sortBy) query.append("sortBy", params.sortBy);
-  if (params?.sortOrder) query.append("sortOrder", params.sortOrder);
+
+  const res = await fetch(`${API_URL}/admin/orders?${query}`, {
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to fetch orders");
+  return res.json();
+};
+
+export const updateOrderStatus = async (orderId: string, status: string) => {
+  const res = await fetch(`${API_URL}/admin/orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error("Failed to update status");
+  return res.json();
+};
+
+export const cancelOrder = async (orderId: string) => {
+  const res = await fetch(`${API_URL}/admin/orders/${orderId}/cancel`, {
+    method: "PATCH",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to cancel order");
+  return res.json();
+};
+
+export const getAllUsers = async (params?: UserQueryParams) => {
+  const filteredParams = params
+    ? (Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v !== undefined),
+      ) as Record<string, string>)
+    : {};
+
+  const query = new URLSearchParams(filteredParams);
 
   const res = await fetch(`${API_URL}/admin/users?${query}`, {
     credentials: "include",
@@ -53,27 +68,25 @@ export const getAllUsers = async (params?: {
   return res.json();
 };
 
-export const suspendUser = async (userId: string): Promise<User> => {
+export const suspendUser = async (userId: string) => {
   const res = await fetch(`${API_URL}/admin/users/${userId}/suspend`, {
     method: "PATCH",
     credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to suspend user");
-  const json = await res.json();
-  return json.data;
+  return res.json();
 };
 
-export const activateUser = async (userId: string): Promise<User> => {
+export const activateUser = async (userId: string) => {
   const res = await fetch(`${API_URL}/admin/users/${userId}/activate`, {
     method: "PATCH",
     credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to activate user");
-  const json = await res.json();
-  return json.data;
+  return res.json();
 };
 
-export const deleteUser = async (userId: string): Promise<void> => {
+export const deleteUser = async (userId: string) => {
   const res = await fetch(`${API_URL}/admin/users/${userId}`, {
     method: "DELETE",
     credentials: "include",
