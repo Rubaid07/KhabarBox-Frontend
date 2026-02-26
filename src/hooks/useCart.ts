@@ -3,15 +3,23 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth-client";
 
+interface AuthUser {
+  id: string;
+  email: string;
+  role?: "CUSTOMER" | "ADMIN" | "PROVIDER";
+  status?: string;
+}
+
 export function useCart() {
   const [cartCount, setCartCount] = useState(0);
   const { data: session, isPending } = useSession();
+  const user = session?.user as AuthUser | undefined;
 
   const refreshCart = useCallback(async () => {
-    if (isPending || !session) {
-      setCartCount(0);
-      return;
-    }
+    if (!session || user?.role !== "CUSTOMER") {
+    setCartCount(0);
+    return;
+  }
 
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -33,7 +41,7 @@ export function useCart() {
     } catch (error) {
       console.error("Failed to fetch cart:", error);
     }
-  }, [session, isPending]);
+  }, [session, user?.role]);
 
   useEffect(() => {
     const fetchCartData = async () => {

@@ -93,3 +93,24 @@ export const deleteUser = async (userId: string) => {
   });
   if (!res.ok) throw new Error("Failed to delete user");
 };
+
+
+export const updateUserStatus = async (userId: string, status: string) => {
+  const res = await fetch(`${API_URL}/admin/users/${userId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error("Failed to update status");
+  return res.json();
+};
+
+export const verifyProvider = async (userId: string) => {
+  const res = await fetch(`${API_URL}/admin/providers/${userId}/verify`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to verify provider");
+  return res.json();
+};

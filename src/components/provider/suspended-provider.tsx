@@ -32,9 +32,9 @@ export function SuspendedProvider({ children }: { children: React.ReactNode }) {
         try {
           const data = await clone.json();
           if (data.code === "SUSPENDED" || data.message === "ACCOUNT_SUSPENDED") {
-            setIsApiSuspended(true);
-          }
-        } catch { 
+        setIsApiSuspended(true);
+      }
+    } catch { 
 
          }
       }
