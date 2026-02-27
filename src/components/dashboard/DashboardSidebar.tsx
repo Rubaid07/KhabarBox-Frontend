@@ -77,26 +77,6 @@ const getNavItems = (role: string) => {
       href: "/admin/dashboard/meals",
       icon: ChefHat,
     },
-    {
-      title: "Reviews",
-      href: "/admin/dashboard/reviews",
-      icon: Star,
-    },
-    {
-      title: "Reports",
-      href: "/admin/dashboard/reports",
-      icon: BarChart3,
-    },
-    {
-      title: "Suspended Users",
-      href: "/admin/dashboard/suspended",
-      icon: ShieldAlert,
-    },
-    {
-      title: "Settings",
-      href: "/admin/dashboard/settings",
-      icon: Settings,
-    },
   ];
 };
 

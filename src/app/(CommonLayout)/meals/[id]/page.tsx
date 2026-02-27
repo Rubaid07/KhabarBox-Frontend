@@ -21,9 +21,33 @@ import {
   UtensilsCrossed,
   BadgeCheck,
   MessageSquare,
+  Shield,
+  MoreHorizontal,
+  Edit,
+  Trash2,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "@/lib/auth-client";
+import { deleteReview, updateReview } from "@/lib/api-reviews";
+import { Button } from "@/components/ui/button";
+import { EditReviewForm } from "@/components/reviews/EditReviewForm";
+interface Review {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  createdAt: string | Date;
+  customer: {
+    id: string;
+    name: string;
+  };
+}
 
 export default function SingleMealPage() {
   const params = useParams();
@@ -34,6 +58,8 @@ export default function SingleMealPage() {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [editingReview, setEditingReview] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (mealId) loadData();
@@ -86,6 +112,47 @@ export default function SingleMealPage() {
 
   const rating = meal?.averageRating || 0;
   const reviewCount = meal?.totalReviews || 0;
+
+  const currentUserId = session?.user?.id;
+  const currentUserRole = (session?.user as { role?: string })?.role;
+
+  // Check if user can edit/delete review
+  const canEditReview = (review: Review) => {
+    return review.customer?.id === currentUserId;
+  };
+
+  const canDeleteReview = (review: Review) => {
+    return (
+      review.customer?.id === currentUserId ||
+      currentUserRole === "PROVIDER" ||
+      currentUserRole === "ADMIN"
+    );
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    try {
+      await deleteReview(reviewId);
+      toast.success("Review deleted");
+      loadData(); // Refresh
+    } catch (error) {
+      toast.error("Failed to delete review");
+    }
+  };
+
+  const handleUpdateReview = async (
+    reviewId: string,
+    rating: number,
+    comment: string,
+  ) => {
+    try {
+      await updateReview(reviewId, { rating, comment });
+      toast.success("Review updated");
+      setEditingReview(null);
+      loadData();
+    } catch (error) {
+      toast.error("Failed to update review");
+    }
+  };
 
   if (loading) {
     return (
@@ -252,6 +319,7 @@ export default function SingleMealPage() {
                 {meal.description || "No description available for this meal."}
               </p>
             </div>
+
             {/* Reviews Section */}
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -270,36 +338,112 @@ export default function SingleMealPage() {
                       key={review.id}
                       className="bg-white border border-gray-200 rounded-xl p-4"
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold shrink-0">
-                          {review.customer?.name?.charAt(0) || "U"}
+                      {editingReview === review.id ? (
+                        // Edit Mode
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-gray-900 mb-3">
+                            Edit Review
+                          </h4>
+                          <EditReviewForm
+                            reviewId={review.id}
+                            initialRating={review.rating}
+                            initialComment={review.comment}
+                            onSuccess={() => {
+                              setEditingReview(null);
+                              loadData();
+                            }}
+                            onCancel={() => setEditingReview(null)}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingReview(null)}
+                            className="mt-2"
+                          >
+                            Cancel
+                          </Button>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <p className="font-semibold text-gray-900">
-                              {review.customer?.name || "Anonymous"}
+                      ) : (
+                        // View Mode
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold shrink-0">
+                            {review.customer?.name?.charAt(0) || "U"}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-gray-900">
+                                  {review.customer?.name || "Anonymous"}
+                                </p>
+                                {currentUserRole === "ADMIN" && (
+                                  <Shield className="h-3 w-3 text-red-500" />
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">
+                                  {new Date(
+                                    review.createdAt,
+                                  ).toLocaleDateString()}
+                                </span>
+
+                                {/* Three Dot Menu */}
+                                {(canEditReview(review) ||
+                                  canDeleteReview(review)) && (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0"
+                                      >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      {canEditReview(review) && (
+                                        <DropdownMenuItem
+                                          onClick={() =>
+                                            setEditingReview(review.id)
+                                          }
+                                        >
+                                          <Edit className="h-4 w-4 mr-2" />
+                                          Edit
+                                        </DropdownMenuItem>
+                                      )}
+                                      {canDeleteReview(review) && (
+                                        <DropdownMenuItem
+                                          onClick={() =>
+                                            handleDeleteReview(review.id)
+                                          }
+                                          className="text-red-600"
+                                        >
+                                          <Trash2 className="h-4 w-4 mr-2" />
+                                          Delete
+                                        </DropdownMenuItem>
+                                      )}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 mb-2">
+                              {[...Array(5)].map((_, j) => (
+                                <Star
+                                  key={j}
+                                  className={`w-3 h-3 ${
+                                    j < review.rating
+                                      ? "text-yellow-400 fill-yellow-400"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-gray-600 text-sm">
+                              {review.comment || "Great meal!"}
                             </p>
-                            <span className="text-xs text-gray-400">
-                              {new Date(review.createdAt).toLocaleDateString()}
-                            </span>
                           </div>
-                          <div className="flex items-center gap-1 mb-2">
-                            {[...Array(5)].map((_, j) => (
-                              <Star
-                                key={j}
-                                className={`w-3 h-3 ${
-                                  j < review.rating
-                                    ? "text-yellow-400 fill-yellow-400"
-                                    : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <p className="text-gray-600 text-sm">
-                            {review.comment || "Great meal!"}
-                          </p>
                         </div>
-                      </div>
+                      )}
                     </div>
                   ))}
                 </div>
