@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  Users,
   Search,
-  Filter,
   MoreHorizontal,
   Shield,
   Store,
@@ -17,6 +15,7 @@ import {
   ChevronRight,
   RefreshCw,
 } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -49,17 +48,30 @@ import {
   suspendUser,
   activateUser,
   deleteUser,
-  User as UserType,
+  // User as UserType,
 } from "@/lib/api-admin";
 import { formatDate } from "@/lib/utils";
+import { Roles } from "@/constants/roles";
 
-const roleConfig = {
+type RoleKey = (typeof Roles)[keyof typeof Roles];
+type StatusKey = "ACTIVE" | "SUSPENDED";
+
+interface UserType {
+  id: string;
+  name: string;
+  email: string;
+  role: RoleKey;
+  status: StatusKey;
+  createdAt: string | Date;
+}
+
+const roleConfig: Record<RoleKey, { icon: LucideIcon; color: string; label: string }> = {
   ADMIN: { icon: Shield, color: "bg-red-100 text-red-800", label: "Admin" },
   PROVIDER: { icon: Store, color: "bg-blue-100 text-blue-800", label: "Provider" },
   CUSTOMER: { icon: User, color: "bg-green-100 text-green-800", label: "Customer" },
 };
 
-const statusConfig = {
+const statusConfig: Record<StatusKey, { color: string; icon: LucideIcon }> = {
   ACTIVE: { color: "bg-green-100 text-green-800", icon: CheckCircle },
   SUSPENDED: { color: "bg-red-100 text-red-800", icon: XCircle },
 };
@@ -84,7 +96,11 @@ export default function AdminUsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const result = await getAllUsers({ page, limit });
+      // .toString() ব্যবহার করে নাম্বারকে স্ট্রিং করুন
+      const result = await getAllUsers({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
       setUsers(result.data);
       setTotalPages(result.meta.totalPage);
     } catch (error) {
@@ -122,8 +138,10 @@ export default function AdminUsersPage() {
       setDeleteDialogOpen(false);
       setSelectedUser(null);
       loadUsers();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete user");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete user";
+      toast.error(message);
     }
   };
 
@@ -132,7 +150,8 @@ export default function AdminUsersPage() {
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === "ALL" || user.role === roleFilter;
-    const matchesStatus = statusFilter === "ALL" || user.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "ALL" || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
@@ -147,7 +166,6 @@ export default function AdminUsersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Users className="h-6 w-6 text-orange-600" />
             User Management
           </h1>
           <p className="text-gray-500">Manage all users in the system</p>
@@ -262,14 +280,20 @@ export default function AdminUsersPage() {
                 <TableBody>
                   {filteredUsers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                      <TableCell
+                        colSpan={5}
+                        className="text-center py-8 text-gray-500"
+                      >
                         No users found
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredUsers.map((user) => {
-                      const role = roleConfig[user.role];
-                      const status = statusConfig[user.status];
+                      const role = roleConfig[user.role as RoleKey];
+                      const status = statusConfig[user.status as StatusKey];
+
+                      if (!role || !status) return null;
+
                       const RoleIcon = role.icon;
                       const StatusIcon = status.icon;
 
@@ -277,8 +301,12 @@ export default function AdminUsersPage() {
                         <TableRow key={user.id}>
                           <TableCell>
                             <div>
-                              <p className="font-medium text-gray-900">{user.name}</p>
-                              <p className="text-sm text-gray-500">{user.email}</p>
+                              <p className="font-medium text-gray-900">
+                                {user.name}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {user.email}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -378,12 +406,16 @@ export default function AdminUsersPage() {
               Delete User
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <strong>{selectedUser?.name}</strong>?
-              This action cannot be undone. User must have no pending orders.
+              Are you sure you want to delete{" "}
+              <strong>{selectedUser?.name}</strong>? This action cannot be
+              undone. User must have no pending orders.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

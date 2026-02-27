@@ -335,9 +335,9 @@ export default function AdminRestaurantsPage() {
       {/* Grid View */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProviders.map((provider) => (
-          <Card
+          <div
             key={provider.id}
-            className="group hover:shadow-lg transition-all"
+            className="group hover:shadow-lg transition-all bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm"
           >
             <CardContent className="p-0">
               {/* Cover Image Placeholder */}
@@ -557,7 +557,7 @@ export default function AdminRestaurantsPage() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </div>
         ))}
       </div>
 
