@@ -1,38 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
-  Package,
-  CheckCircle,
-  XCircle,
-  ChefHat,
-  Truck,
-  Search,
-  Filter,
-  Phone,
-  MapPin,
-  User,
+  Package, CheckCircle, XCircle, ChefHat, Truck,
+  Search, Filter, Phone, MapPin, User, Eye,
+  LucideIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import {
-  getProviderOrders,
-  updateOrderStatus,
-  ProviderOrder,
-} from "@/lib/api-provider";
+import { getProviderOrders, updateOrderStatus, ProviderOrder } from "@/lib/api-provider";
 import { formatPrice, formatDate } from "@/lib/utils";
 
-const statusConfig = {
+const statusConfig: Record<string, { label: string; color: string; icon: LucideIcon; actions: string[] }> = {
   PLACED: {
     label: "New Order",
     color: "bg-blue-100 text-blue-800 border-blue-200",
@@ -90,7 +76,7 @@ export default function ProviderOrdersPage() {
     try {
       await updateOrderStatus(orderId, newStatus);
       toast.success(`Order marked as ${newStatus}`);
-      loadOrders(); // Refresh
+      loadOrders();
     } catch (error) {
       toast.error("Failed to update status");
     }
@@ -104,7 +90,6 @@ export default function ProviderOrdersPage() {
     return matchesStatus && matchesSearch;
   });
 
-  // Group by status for tabs
   const orderCounts = {
     ALL: orders.length,
     PLACED: orders.filter((o) => o.status === "PLACED").length,
@@ -113,6 +98,20 @@ export default function ProviderOrdersPage() {
     DELIVERED: orders.filter((o) => o.status === "DELIVERED").length,
     CANCELLED: orders.filter((o) => o.status === "CANCELLED").length,
   };
+
+  const getMealId = (order: ProviderOrder): string | null => {
+  try {
+    const firstItem = order.orderItems[0] as Record<string, unknown>;
+
+    if (!firstItem) return null;
+    const meal = firstItem.meal as Record<string, string> | undefined;
+    const mealId = firstItem.mealId as string | undefined;
+
+    return meal?.id || mealId || null;
+  } catch {
+    return null;
+  }
+};
 
   if (loading) {
     return (
@@ -124,32 +123,46 @@ export default function ProviderOrdersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Orders</h1>
           <p className="text-gray-500">Manage and track your orders</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "New Orders", value: orderCounts.PLACED, color: "bg-blue-50" },
-          { label: "Preparing", value: orderCounts.PREPARING, color: "bg-yellow-50" },
-          { label: "Ready", value: orderCounts.READY, color: "bg-purple-50" },
-          { label: "Delivered Today", value: orderCounts.DELIVERED, color: "bg-green-50" },
-        ].map((stat) => (
-          <Card key={stat.label} className={stat.color}>
-            <CardContent className="p-4">
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-sm text-gray-600">{stat.label}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <Card className="bg-blue-50">
+          <CardContent className="p-4">
+            <p className="text-2xl font-semibold">{orderCounts.PLACED}</p>
+            <p className="text-sm text-gray-600">New</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-yellow-50">
+          <CardContent className="p-4">
+            <p className="text-2xl font-semibold">{orderCounts.PREPARING}</p>
+            <p className="text-sm text-gray-600">Preparing</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-purple-50">
+          <CardContent className="p-4">
+            <p className="text-2xl font-semibold">{orderCounts.READY}</p>
+            <p className="text-sm text-gray-600">Ready</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-green-50">
+          <CardContent className="p-4">
+            <p className="text-2xl font-semibold">{orderCounts.DELIVERED}</p>
+            <p className="text-sm text-gray-600">Delivered</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-red-50">
+          <CardContent className="p-4">
+            <p className="text-2xl font-semibold">{orderCounts.CANCELLED}</p>
+            <p className="text-sm text-gray-600">Cancelled</p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -161,7 +174,7 @@ export default function ProviderOrdersPage() {
           />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-45">
             <Filter className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -176,24 +189,21 @@ export default function ProviderOrdersPage() {
         </Select>
       </div>
 
-      {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center text-gray-500">
-              <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>No orders found</p>
-            </CardContent>
+          <Card className="p-8 text-center text-gray-500">
+            <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p>No orders found</p>
           </Card>
         ) : (
           filteredOrders.map((order) => {
-            const config = statusConfig[order.status as keyof typeof statusConfig];
+            const config = statusConfig[order.status] || statusConfig.PLACED;
             const StatusIcon = config.icon;
+            const mealId = getMealId(order);
 
             return (
-              <Card key={order.id} className="overflow-hidden">
+              <Card key={order.id} className="overflow-hidden hover:shadow-md transition-shadow">
                 <CardContent className="p-0">
-                  {/* Order Header */}
                   <div className="p-4 border-b bg-gray-50/50 flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`p-2 rounded-lg ${config.color}`}>
@@ -201,14 +211,10 @@ export default function ProviderOrdersPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-900">
-                            #{order.id.slice(-8)}
-                          </span>
+                          <span className="font-semibold text-gray-900">#{order.id.slice(-8)}</span>
                           <Badge className={config.color}>{config.label}</Badge>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {formatDate(order.createdAt)} • {order.orderItems.length} items
-                        </p>
+                        <p className="text-sm text-gray-500">{formatDate(order.createdAt)} • {order.orderItems.length} items</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -217,7 +223,6 @@ export default function ProviderOrdersPage() {
                     </div>
                   </div>
 
-                  {/* Customer Info */}
                   <div className="p-4 border-b">
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-2">
@@ -235,22 +240,14 @@ export default function ProviderOrdersPage() {
                       <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
                       <span>{order.deliveryAddress}</span>
                     </div>
-                    {order.notes && (
-                      <p className="mt-2 text-sm text-gray-500 italic">
-                        Note: {order.notes}
-                      </p>
-                    )}
                   </div>
 
-                  {/* Order Items */}
-                  <div className="p-4">
+                  <div className="p-4 border-b">
                     <div className="space-y-2">
                       {order.orderItems.map((item) => (
                         <div key={item.id} className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-3">
-                            <span className="font-medium text-gray-900">
-                              {item.quantity}x
-                            </span>
+                            <span className="font-medium text-gray-900">{item.quantity}x</span>
                             <span>{item.meal.name}</span>
                           </div>
                           <span className="text-gray-600">
@@ -261,22 +258,17 @@ export default function ProviderOrdersPage() {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  {config.actions.length > 0 && (
-                    <div className="p-4 border-t bg-gray-50 flex gap-2">
+                  <div className="p-4 bg-gray-50 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {config.actions.map((action) => (
                         <Button
                           key={action}
                           size="sm"
                           variant={action === "CANCELLED" ? "destructive" : "default"}
                           className={
-                            action === "PREPARING"
-                              ? "bg-yellow-600 hover:bg-yellow-700"
-                              : action === "READY"
-                              ? "bg-purple-600 hover:bg-purple-700"
-                              : action === "DELIVERED"
-                              ? "bg-green-600 hover:bg-green-700"
-                              : ""
+                            action === "PREPARING" ? "bg-yellow-600 hover:bg-yellow-700" :
+                            action === "READY" ? "bg-purple-600 hover:bg-purple-700" :
+                            action === "DELIVERED" ? "bg-green-600 hover:bg-green-700" : ""
                           }
                           onClick={() => handleStatusUpdate(order.id, action)}
                         >
@@ -287,7 +279,19 @@ export default function ProviderOrdersPage() {
                         </Button>
                       ))}
                     </div>
-                  )}
+
+                    {mealId ? (
+                      <Button size="sm" variant="outline" asChild className="gap-2 border-orange-200 text-orange-600">
+                        <Link href={`/meals/${mealId}`}>
+                          <Eye className="h-4 w-4" /> View Meal Details
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" disabled className="gap-2 text-gray-400">
+                        <Eye className="h-4 w-4" /> No Meal Details
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );

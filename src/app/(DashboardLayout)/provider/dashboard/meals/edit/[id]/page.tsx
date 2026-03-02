@@ -144,7 +144,7 @@ export default function EditMealPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
       </div>
     );
   }
@@ -159,7 +159,7 @@ export default function EditMealPage() {
           >
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Meal</h1>
+          <h1 className="text-3xl font-semibold text-gray-900">Edit Meal</h1>
         </div>
       </div>
 
@@ -182,7 +182,7 @@ export default function EditMealPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="e.g., Margherita Pizza"
                   />
                 </div>
@@ -197,7 +197,7 @@ export default function EditMealPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                     placeholder="Describe your meal..."
                   />
                 </div>
@@ -215,7 +215,7 @@ export default function EditMealPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, price: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -227,7 +227,7 @@ export default function EditMealPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, categoryId: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
                     >
                       <option value="">Select category</option>
                       {categories.map((cat) => (
@@ -275,7 +275,7 @@ export default function EditMealPage() {
                   onKeyPress={(e) =>
                     e.key === "Enter" && (e.preventDefault(), addCustomTag())
                   }
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="Add custom tag..."
                 />
                 <button
@@ -354,7 +354,7 @@ export default function EditMealPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, imageUrl: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                 placeholder="https://example.com/image.jpg"
               />
             </div>
@@ -372,7 +372,7 @@ export default function EditMealPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, isAvailable: e.target.checked })
                   }
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500"
                 />
                 <div>
                   <span className="text-sm font-medium text-gray-900">
@@ -390,7 +390,7 @@ export default function EditMealPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-700 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving ? (
                   <>
