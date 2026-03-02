@@ -16,6 +16,7 @@ import {
   Package,
   ShieldAlert,
   Settings,
+  Tag,
 } from "lucide-react";
 import Image from "next/image";
 import { Roles } from "@/constants/roles";
@@ -77,6 +78,11 @@ const getNavItems = (role: string) => {
       href: "/admin/dashboard/meals",
       icon: ChefHat,
     },
+    {
+    title: "Categories",
+    href: "/admin/dashboard/categories",
+    icon: Tag,
+  },
   ];
 };
 
