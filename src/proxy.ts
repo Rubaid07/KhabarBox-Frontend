@@ -7,12 +7,19 @@ export default function proxy(request: NextRequest) {
 
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
   const isOrdersPage = pathname.startsWith("/orders");
+  const isCartPage = pathname.startsWith("/cart");
+  
+  const isDashboardPage = pathname.startsWith("/provider/dashboard") || pathname.startsWith("/admin/dashboard");
 
   if (sessionCookie && isAuthPage) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (!sessionCookie && isOrdersPage) {
+  if (!sessionCookie && (isOrdersPage || isCartPage)) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (!sessionCookie && isDashboardPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -20,5 +27,12 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/signup", "/orders/:path*"],
+  matcher: [
+    "/login", 
+    "/signup", 
+    "/orders/:path*", 
+    "/cart/:path*", 
+    "/provider/dashboard/:path*", 
+    "/admin/dashboard/:path*"
+  ],
 };
