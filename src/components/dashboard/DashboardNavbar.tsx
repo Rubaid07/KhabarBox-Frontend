@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 interface DashboardNavbarProps {
   toggleSidebar: () => void;
@@ -27,8 +28,8 @@ export default function DashboardNavbar({
   const user = session?.user;
 
   return (
-    <nav className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-4 lg:px-6">
-      <div className="flex items-center justify-between h-12">
+    <nav className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 lg:px-6 h-20">
+      <div className="flex items-center justify-between h-full">
         <div className="flex items-center gap-3">
           <button
             onClick={toggleSidebar}
@@ -41,16 +42,17 @@ export default function DashboardNavbar({
             )}
           </button>
 
-          <div className="lg:hidden">
+          <Link href="/" className="lg:hidden">
             <Image
               src="/logo.png"
-              alt="logo"
-              width={80}
-              height={32}
-              className="h-12 w-34 md:h-12 md:w-40 object-contain"
+              alt="Khabar Box Logo"
+              width={160}
+              height={48}
+              className="w-auto h-12"
+              style={{ objectFit: "contain" }}
               priority
             />
-          </div>
+          </Link>
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>

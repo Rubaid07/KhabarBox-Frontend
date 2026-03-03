@@ -1,14 +1,17 @@
-import { getAllRestaurants, getTopRatedRestaurants } from "@/lib/api-restaurants";
+import {
+  getAllRestaurants,
+  getTopRatedRestaurants,
+} from "@/lib/api-restaurants";
 import { Restaurant } from "@/types/restaurant";
-import { 
-  Star, 
-  MapPin, 
+import {
+  Star,
+  MapPin,
   UtensilsCrossed,
   ChevronRight,
   TrendingUp,
   Store,
   Search,
-  BadgeCheck
+  BadgeCheck,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,7 +26,7 @@ export const metadata = {
 function RestaurantCardSkeleton() {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      <div className="relative h-40 bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
+      <div className="relative h-40 bg-linear-to-br from-orange-50 to-red-50 flex items-center justify-center">
         <div className="w-28 h-28 rounded-full bg-gray-200 animate-pulse border-4 border-white shadow-xl" />
       </div>
       <div className="p-5">
@@ -45,7 +48,10 @@ function TopRatedSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200">
+        <div
+          key={i}
+          className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200"
+        >
           <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
           <div className="w-16 h-16 rounded-full bg-gray-200 animate-pulse" />
           <div className="flex-1 space-y-2">
@@ -60,7 +66,8 @@ function TopRatedSkeleton() {
 
 // Restaurant Card Component
 function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
-  const imageUrl = restaurant.logoUrl || restaurant.user?.image || "/default-restaurant.png";
+  const imageUrl =
+    restaurant.logoUrl || restaurant.user?.image || "/default-restaurant.png";
   const rating = restaurant.averageRating || 0;
   const reviewCount = restaurant.totalReviews || 0;
   const mealCount = restaurant.user?._count?.meals || 0;
@@ -71,7 +78,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
       className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block"
     >
       {/* Cover Image Section */}
-      <div className="relative h-40 bg-gradient-to-br from-orange-50 to-red-50 overflow-hidden flex items-center justify-center">
+      <div className="relative h-40 bg-linear-to-br from-orange-50 to-red-50 overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 right-0 w-32 h-32 bg-orange-200 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-red-200 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -135,8 +142,15 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
 }
 
 // Top Rated Card
-function TopRatedCard({ restaurant, rank }: { restaurant: Restaurant; rank: number }) {
-  const imageUrl = restaurant.logoUrl || restaurant.user?.image || "/default-restaurant.png";
+function TopRatedCard({
+  restaurant,
+  rank,
+}: {
+  restaurant: Restaurant;
+  rank: number;
+}) {
+  const imageUrl =
+    restaurant.logoUrl || restaurant.user?.image || "/default-restaurant.png";
   const rating = restaurant.averageRating || 0;
 
   return (
@@ -144,12 +158,17 @@ function TopRatedCard({ restaurant, rank }: { restaurant: Restaurant; rank: numb
       href={`/restaurants/${restaurant.userId}`}
       className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all group"
     >
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-        rank === 1 ? "bg-yellow-100 text-yellow-700" :
-        rank === 2 ? "bg-gray-100 text-gray-700" :
-        rank === 3 ? "bg-orange-100 text-orange-700" :
-        "bg-gray-50 text-gray-500"
-      }`}>
+      <div
+        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+          rank === 1
+            ? "bg-yellow-100 text-yellow-700"
+            : rank === 2
+              ? "bg-gray-100 text-gray-700"
+              : rank === 3
+                ? "bg-orange-100 text-orange-700"
+                : "bg-gray-50 text-gray-500"
+        }`}
+      >
         {rank}
       </div>
 
@@ -169,7 +188,9 @@ function TopRatedCard({ restaurant, rank }: { restaurant: Restaurant; rank: numb
         </h4>
         <div className="flex items-center gap-1 mt-0.5 text-xs text-gray-500">
           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-          <span className="font-medium text-gray-900">{rating > 0 ? rating.toFixed(1) : "New"}</span>
+          <span className="font-medium text-gray-900">
+            {rating > 0 ? rating.toFixed(1) : "New"}
+          </span>
           <span>({restaurant.totalReviews || 0})</span>
         </div>
       </div>
@@ -209,7 +230,9 @@ async function RestaurantsContent() {
         ) : (
           <div className="text-center py-16 bg-white rounded-3xl border border-gray-200">
             <Store className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">No restaurants found</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              No restaurants found
+            </h3>
           </div>
         )}
       </div>
@@ -224,13 +247,15 @@ async function RestaurantsContent() {
 
           <div className="bg-gray-50 rounded-2xl p-3 space-y-2">
             {topRated.length > 0 ? (
-              topRated.slice(0, 5).map((restaurant, index) => (
-                <TopRatedCard 
-                  key={restaurant.id} 
-                  restaurant={restaurant} 
-                  rank={index + 1}
-                />
-              ))
+              topRated
+                .slice(0, 5)
+                .map((restaurant, index) => (
+                  <TopRatedCard
+                    key={restaurant.id}
+                    restaurant={restaurant}
+                    rank={index + 1}
+                  />
+                ))
             ) : (
               <div className="text-center py-8 text-gray-500 text-sm">
                 No ratings yet
@@ -286,22 +311,24 @@ export default function AllRestaurantsPage() {
 
       {/* Main Content with Suspense */}
       <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Suspense fallback={
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-3">
-              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-6" />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <RestaurantCardSkeleton key={i} />
-                ))}
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-3">
+                <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-6" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <RestaurantCardSkeleton key={i} />
+                  ))}
+                </div>
+              </div>
+              <div className="lg:col-span-1">
+                <div className="h-8 w-32 bg-gray-200 rounded animate-pulse mb-4" />
+                <TopRatedSkeleton />
               </div>
             </div>
-            <div className="lg:col-span-1">
-              <div className="h-8 w-32 bg-gray-200 rounded animate-pulse mb-4" />
-              <TopRatedSkeleton />
-            </div>
-          </div>
-        }>
+          }
+        >
           <RestaurantsContent />
         </Suspense>
       </div>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Menu,
   ShoppingCart,
@@ -39,11 +39,12 @@ import { authClient } from "@/lib/auth-client";
 import { useCart } from "@/hooks/useCart";
 import { SearchBar } from "../search/search-bar";
 
+// Define which roles can see which nav items
 const navItems = [
-  { label: "Home", href: "/" },
-  { label: "Meal", href: "/meals" },
-  { label: "Restaurants", href: "/restaurants" },
-  { label: "Orders", href: "/orders" },
+  { label: "Home", href: "/", roles: ["*"] }, // * means all roles
+  { label: "Meal", href: "/meals", roles: ["*"] },
+  { label: "Restaurants", href: "/restaurants", roles: ["*"] },
+  { label: "Orders", href: "/orders", roles: [Roles.customer] }, // Only customers
 ];
 
 interface UserData {
@@ -56,11 +57,26 @@ interface UserData {
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { cartCount } = useCart();
+
+  // Check if user is admin or provider and trying to access orders page
+  useEffect(() => {
+    if (user && (user.role === Roles.admin || user.role === Roles.provider)) {
+      if (pathname?.startsWith('/orders')) {
+        // Redirect to appropriate dashboard
+        const dashboardPath = user.role === Roles.admin 
+          ? '/admin/dashboard/overview' 
+          : '/provider/dashboard/overview';
+        router.push(dashboardPath);
+        toast.error("You don't have access to customer orders");
+      }
+    }
+  }, [user, pathname, router]);
 
   useEffect(() => {
     let isMounted = true;
@@ -124,7 +140,7 @@ export default function Navbar() {
       case Roles.provider:
         return "/provider/dashboard/overview";
       default:
-        return "/orders";
+        return "/profile";
     }
   };
 
@@ -152,6 +168,21 @@ export default function Navbar() {
     }
   };
 
+  // Filter nav items based on user role
+  const getFilteredNavItems = () => {
+    if (!user) {
+      // For non-logged in users, show items that are public or for customers
+      return navItems.filter(item => 
+        item.roles.includes("*") || item.roles.includes(Roles.customer)
+      );
+    }
+    
+    // For logged in users, show items based on their role
+    return navItems.filter(item => 
+      item.roles.includes("*") || item.roles.includes(user.role)
+    );
+  };
+
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const query = searchInputRef.current?.value;
@@ -160,6 +191,9 @@ export default function Navbar() {
       setIsSearchOpen(false);
     }
   };
+
+  // Check if user can access orders page (for conditional rendering)
+  const canAccessOrders = user?.role === Roles.customer;
 
   if (isLoading) {
     return (
@@ -196,6 +230,8 @@ export default function Navbar() {
     );
   }
 
+  const filteredNavItems = getFilteredNavItems();
+
   return (
     <>
       {/* Main Navbar */}
@@ -213,19 +249,19 @@ export default function Navbar() {
                 <SheetContent side="left" className="w-64">
                   <SheetTitle className="hidden">Mobile Menu</SheetTitle>
                   <div className="flex flex-col gap-6 pt-6 px-2">
-                    <Link href="/" className="flex items-center gap-2">
-                      <div className="relative h-12 w-52">
-                        <Image
-                          src="/logo.png"
-                          alt="Logo"
-                          fill
-                          className="object-contain object-left px-3"
-                          priority
-                        />
-                      </div>
+                    <Link href="/" className="flex items-center gap-2 px-3">
+                      <Image
+                        src="/logo.png"
+                        alt="Khabar Box Logo"
+                        width={160}
+                        height={48}
+                        className="w-auto h-12"
+                        style={{ objectFit: "contain" }}
+                        priority
+                      />
                     </Link>
                     <nav className="flex flex-col gap-4">
-                      {navItems.map((item) => (
+                      {filteredNavItems.map((item) => (
                         <Link
                           key={item.href}
                           href={item.href}
@@ -240,19 +276,19 @@ export default function Navbar() {
               </Sheet>
 
               <Link href="/" className="flex items-center">
-                <div className="relative h-26 w-38">
-                  <Image
-                    src="/logo.png"
-                    alt="Logo"
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="Khabar Box Logo"
+                  width={160}
+                  height={48}
+                  className="w-auto h-12"
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
               </Link>
 
               <nav className="hidden lg:flex items-center gap-1 ml-6">
-                {navItems.map((item) => (
+                {filteredNavItems.map((item) => (
                   <Button
                     key={item.href}
                     asChild
@@ -273,7 +309,6 @@ export default function Navbar() {
 
             {/* Right side */}
             <div className="flex items-center gap-2 md:gap-4">
-              {/* ✅ Mobile Search Toggle */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -283,15 +318,14 @@ export default function Navbar() {
                 <Search className="h-5 w-5" />
               </Button>
 
-              {/* Cart Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild={!!user && user.role === Roles.customer}
-                disabled={!user || user.role !== Roles.customer}
-                className="flex relative"
-              >
-                {user && user.role === Roles.customer ? (
+              {/* Cart Button - Only visible to customers */}
+              {user?.role === Roles.customer && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  className="flex relative"
+                >
                   <Link href="/cart">
                     <ShoppingCart className="h-5 w-5" />
                     {cartCount > 0 && (
@@ -300,12 +334,21 @@ export default function Navbar() {
                       </Badge>
                     )}
                   </Link>
-                ) : (
-                  <span>
-                    <ShoppingCart className="h-5 w-5 opacity-50" />
-                  </span>
-                )}
-              </Button>
+                </Button>
+              )}
+
+              {/* Show disabled cart for non-customers */}
+              {user && user.role !== Roles.customer && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled
+                  className="opacity-50 cursor-not-allowed"
+                  title="Cart is only for customers"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                </Button>
+              )}
 
               {/* User Menu */}
               {user ? (
@@ -340,11 +383,15 @@ export default function Navbar() {
                       </div>
                     </div>
                     <DropdownMenuSeparator />
+                    
+                    {/* Profile link for all users */}
                     <DropdownMenuItem asChild>
                       <Link href="/profile" className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" /> Profile
                       </Link>
                     </DropdownMenuItem>
+                    
+                    {/* Dashboard link for admin and provider */}
                     {user.role !== Roles.customer && (
                       <DropdownMenuItem asChild>
                         <Link
@@ -355,6 +402,16 @@ export default function Navbar() {
                         </Link>
                       </DropdownMenuItem>
                     )}
+                    
+                    {/* Orders link only for customers */}
+                    {user.role === Roles.customer && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/orders" className="cursor-pointer">
+                          <ShoppingCart className="mr-2 h-4 w-4" /> My Orders
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={handleLogout}
@@ -384,13 +441,13 @@ export default function Navbar() {
         </div>
       </header>
 
+      {/* Mobile Search Panel */}
       <div
         className={`fixed inset-x-0 top-0 z-[60] bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:hidden ${
           isSearchOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         <div className="flex items-center gap-3 px-4 py-3 border-b">
-          {/* Back/Close Button */}
           <Button
             variant="ghost"
             size="icon"

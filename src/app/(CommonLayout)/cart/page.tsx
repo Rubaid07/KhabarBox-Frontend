@@ -22,6 +22,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Roles } from "@/constants/roles";
+import { authClient } from "@/lib/auth-client";
+
+interface UserData {
+  role: string;
+}
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -31,8 +37,29 @@ export default function CartPage() {
   const router = useRouter();
 
   useEffect(() => {
-    loadCart();
-  }, []);
+    const checkAccessAndLoad = async () => {
+      try {
+        const { data: session } = await authClient.getSession();
+
+        // টাইপ কাস্টিং করে role চেক
+        const user = session?.user as unknown as UserData;
+
+        if (!user || user.role !== Roles.customer) {
+          toast.error("Only customers can access the cart.");
+          router.replace("/"); // রিডাইরেক্ট
+          return;
+        }
+
+        // কাস্টমার হলে কার্ট লোড করো
+        await loadCart();
+      } catch (error) {
+        console.error("Auth check failed", error);
+        setLoading(false);
+      }
+    };
+
+    checkAccessAndLoad();
+  }, [router]);
 
   const loadCart = async () => {
     try {
@@ -234,7 +261,6 @@ export default function CartPage() {
                           </div>
                         </Link>
 
-                        {/* Actions Row - Separate from Link */}
                         <div className="px-6 pb-6 flex items-center justify-between">
                           {/* Quantity Controls */}
                           <div className="flex items-center gap-3">
@@ -329,14 +355,11 @@ export default function CartPage() {
                 </div>
 
                 {/* Checkout Button */}
-                <Link href="/checkout">
-                <button
-                  onClick={() => router.push("/checkout")}
-                  className="w-full py-4 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  Proceed to Checkout
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                <Link href="/checkout" className="w-full">
+                  <button className="w-full py-4 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                    Proceed to Checkout
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
                 </Link>
               </div>
 

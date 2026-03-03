@@ -7,19 +7,24 @@ import { ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 
 const cuisineImages: Record<string, string> = {
-  "italian": "https://images.unsplash.com/photo-1498579150354-977475b7ea0b?w=400",
-  "chinese": "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400",
-  "indian": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400",
-  "mexican": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400",
-  "japanese": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400",
-  "thai": "https://images.unsplash.com/photo-1559314809-0d155014e29e?w=400",
-  "american": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
-  "mediterranean": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400",
-  "korean": "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400",
-  "vietnamese": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400",
+  italian: "https://images.unsplash.com/photo-1498579150354-977475b7ea0b?w=400",
+  chinese: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400",
+  indian: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400",
+  mexican: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400",
+  japanese:
+    "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400",
+  thai: "https://images.unsplash.com/photo-1559314809-0d155014e29e?w=400",
+  american:
+    "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
+  mediterranean:
+    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400",
+  korean: "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400",
+  vietnamese:
+    "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400",
 };
 
-const defaultCuisineImage = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400";
+const defaultCuisineImage =
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400";
 
 export default function TrendingCuisines() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -97,7 +102,7 @@ export default function TrendingCuisines() {
   if (loading) {
     return (
       <section className="py-16 bg-gray-50">
-         <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="lg:container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
             <div className="flex gap-2">
@@ -107,7 +112,10 @@ export default function TrendingCuisines() {
           </div>
           <div className="flex gap-4">
             {[...Array(7)].map((_, i) => (
-              <div key={i} className="flex-1 h-40 bg-gray-200 rounded-xl animate-pulse" />
+              <div
+                key={i}
+                className="flex-1 h-40 bg-gray-200 rounded-xl animate-pulse"
+              />
             ))}
           </div>
         </div>
@@ -127,10 +135,14 @@ export default function TrendingCuisines() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Trending Cuisines</h2>
-            <p className="text-gray-600 mt-2">Explore popular food categories</p>
+            <h2 className="text-3xl font-bold text-gray-900">
+              Trending Cuisines
+            </h2>
+            <p className="text-gray-600 mt-2">
+              Explore popular food categories
+            </p>
           </div>
-          
+
           {/* Navigation Arrows */}
           <div className="flex gap-2">
             <button
@@ -159,13 +171,13 @@ export default function TrendingCuisines() {
         </div>
 
         {/* Carousel Container */}
-        <div 
+        <div
           ref={containerRef}
           className="relative overflow-hidden"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <div 
+          <div
             className="flex gap-4 transition-transform duration-500 ease-out"
             style={{
               transform: `translateX(-${currentIndex * (100 / itemsPerView + 1.5)}%)`,
@@ -174,9 +186,11 @@ export default function TrendingCuisines() {
             {categories.map((category) => (
               <Link
                 key={category.id}
-                href={`/meals?categoryId=${category.id}`}  // Redirect to meals with filter
+                href={`/meals?categoryId=${category.id}`} // Redirect to meals with filter
                 className="flex-shrink-0 group"
-                style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
+                style={{
+                  width: `calc(${100 / itemsPerView}% - ${((itemsPerView - 1) * 16) / itemsPerView}px)`,
+                }}
               >
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-200">
                   {/* Image */}
@@ -185,10 +199,10 @@ export default function TrendingCuisines() {
                     alt={category.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  
+
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+
                   {/* Content */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h3 className="text-white font-bold text-lg capitalize">
@@ -202,7 +216,7 @@ export default function TrendingCuisines() {
 
                   {/* Hover Effect */}
                   <div className="absolute inset-0 bg-orange-600/0 group-hover:bg-orange-600/10 transition-colors" />
-                  
+
                   {/* Click Hint */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <span className="px-4 py-2 bg-white/90 text-gray-900 rounded-full text-sm font-medium">

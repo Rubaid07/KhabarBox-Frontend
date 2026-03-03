@@ -2,7 +2,8 @@ import { CreateOrderInput, Order } from "@/types/order";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-export const getMyOrders = async () => {
+export const getMyOrders = async (): Promise<Order[]> => {
+ 
   try {
     const response = await fetch(`${API_URL}/orders/my`, {
       method: "GET",
@@ -10,26 +11,27 @@ export const getMyOrders = async () => {
       headers: { "Content-Type": "application/json" },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch orders");
+    if (response.status === 401 || response.status === 403) {
+      console.warn("Unauthorized attempt to fetch orders");
+      return [];
     }
 
+    if (!response.ok) throw new Error("Failed to fetch orders");
+
     const result = await response.json();
-    // এখানে নিশ্চিত করুন যে অন্তত খালি অ্যারে রিটার্ন হচ্ছে
-    return result.data || []; 
+    return result.data || [];
   } catch (error) {
-    console.error("getMyOrders Error:", error);
-    return []; // এরর হলেও খালি অ্যারে দিন যাতে ম্যাপ ক্র্যাশ না করে
+    return [];
   }
 };
 
-export const createOrder = async (data: CreateOrderInput): Promise<any[]> => {
+export const createOrder = async (data: CreateOrderInput): Promise<Order> => {
   const response = await fetch(`${API_URL}/orders`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include", // Sends session cookie
+    credentials: "include",
     body: JSON.stringify(data),
   });
 
@@ -38,7 +40,8 @@ export const createOrder = async (data: CreateOrderInput): Promise<any[]> => {
     throw new Error(error.message || "Failed to create order");
   }
 
-  return (await response.json()).data;
+  const result = await response.json();
+  return result.data;
 };
 
 export const getOrderById = async (orderId: string): Promise<Order> => {
@@ -53,7 +56,8 @@ export const getOrderById = async (orderId: string): Promise<Order> => {
     throw new Error("Failed to fetch order");
   }
 
-  return (await response.json()).data;
+  const result = await response.json();
+  return result.data;
 };
 
 export const cancelOrder = async (orderId: string): Promise<void> => {

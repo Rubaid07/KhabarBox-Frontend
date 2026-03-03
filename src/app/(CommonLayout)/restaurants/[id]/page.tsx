@@ -123,7 +123,7 @@ export default function RestaurantProfilePage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-br from-orange-400 to-red-500">
+      <div className="relative h-64 md:h-80 lg:h-96 bg-linear-to-br from-orange-400 to-red-500">
         <div className="absolute inset-0 bg-black/20" />
 
         {/* Restaurant Info */}
@@ -318,7 +318,6 @@ export default function RestaurantProfilePage() {
                           {meal.description || "Delicious meal"}
                         </p>
                       </div>
-                     
                     </div>
 
                     {/* Tags */}
@@ -341,7 +340,7 @@ export default function RestaurantProfilePage() {
                         View Details
                         <ChevronLeft className="w-3 h-3 rotate-180" />
                       </button>
-                       <span className="font-bold text-orange-600">
+                      <span className="font-bold text-orange-600">
                         BDT {Number(meal.price)}
                       </span>
                     </div>

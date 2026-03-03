@@ -79,10 +79,10 @@ const getNavItems = (role: string) => {
       icon: ChefHat,
     },
     {
-    title: "Categories",
-    href: "/admin/dashboard/categories",
-    icon: Tag,
-  },
+      title: "Categories",
+      href: "/admin/dashboard/categories",
+      icon: Tag,
+    },
   ];
 };
 
@@ -133,14 +133,15 @@ export default function DashboardSidebar({
           "overflow-y-auto custom-scrollbar",
         )}
       >
-        <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-200">
-          <Link href="/" className="block">
+        <div className="sticky top-0 bg-white z-10 px-6 h-20 flex items-center border-b border-gray-200">
+          <Link href="/" className="inline-block">
             <Image
               src="/logo.png"
-              alt="logo"
-              width={120}
+              alt="Khabar Box Logo"
+              width={160}
               height={48}
-              className="h-12 w-34 md:h-12 md:w-40 object-contain"
+              className="w-auto h-12"
+              style={{ objectFit: "contain" }}
               priority
             />
           </Link>

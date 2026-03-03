@@ -11,13 +11,11 @@ import {
   Users,
   ArrowUpRight,
   Calendar,
-  ShoppingBag,
   LucideIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
@@ -32,7 +30,6 @@ import {
 } from "@/lib/api-provider-dashboard";
 import { formatPrice } from "@/lib/utils";
 
-// Simple Bar Chart Component - Improved Visual
 function WeeklyChart({ data }: { data: ChartData[] }) {
   if (!data || data.length === 0) {
     return (
@@ -43,7 +40,7 @@ function WeeklyChart({ data }: { data: ChartData[] }) {
   }
 
   const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
-  const hasData = data.some(d => d.revenue > 0 || d.orders > 0);
+  const hasData = data.some((d) => d.revenue > 0 || d.orders > 0);
 
   if (!hasData) {
     return (
@@ -78,26 +75,32 @@ function WeeklyChart({ data }: { data: ChartData[] }) {
         {/* Bars */}
         <div className="relative h-full flex items-end justify-around gap-2 ml-8">
           {data.map((day, idx) => {
-            const heightPercentage = day.revenue > 0 
-              ? (day.revenue / maxRevenue) * 100 
-              : 4; // Minimum 4% height for visibility
-            
+            const heightPercentage =
+              day.revenue > 0 ? (day.revenue / maxRevenue) * 100 : 4; // Minimum 4% height for visibility
+
             return (
-              <div key={day.day || idx} className="flex-1 flex flex-col items-center gap-2 group">
+              <div
+                key={day.day || idx}
+                className="flex-1 flex flex-col items-center gap-2 group"
+              >
                 {/* Bar with gradient and animation */}
                 <div className="relative w-full h-full flex items-end">
                   <div
-                    className="w-full bg-gradient-to-t from-orange-600 to-orange-400 rounded-t-lg transition-all duration-300 group-hover:from-orange-700 group-hover:to-orange-500 cursor-pointer relative shadow-sm"
-                    style={{ 
+                    className="w-full bg-linear-to-t from-orange-600 to-orange-400 rounded-t-lg transition-all duration-300 group-hover:from-orange-700 group-hover:to-orange-500 cursor-pointer relative shadow-sm"
+                    style={{
                       height: `${heightPercentage}%`,
-                      minHeight: '16px',
-                      opacity: day.revenue === 0 ? 0.5 : 1
+                      minHeight: "16px",
+                      opacity: day.revenue === 0 ? 0.5 : 1,
                     }}
                   >
                     {/* Tooltip */}
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 whitespace-nowrap z-20 transition-opacity shadow-lg">
-                      <div className="font-semibold">{formatPrice(day.revenue)}</div>
-                      <div className="text-gray-300 text-[10px]">{day.orders} orders</div>
+                      <div className="font-semibold">
+                        {formatPrice(day.revenue)}
+                      </div>
+                      <div className="text-gray-300 text-[10px]">
+                        {day.orders} orders
+                      </div>
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
                     </div>
 
@@ -111,7 +114,9 @@ function WeeklyChart({ data }: { data: ChartData[] }) {
 
                 {/* Day label with order count */}
                 <div className="text-center">
-                  <span className="text-sm font-medium text-gray-700">{day.day}</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {day.day}
+                  </span>
                 </div>
               </div>
             );
@@ -121,29 +126,49 @@ function WeeklyChart({ data }: { data: ChartData[] }) {
 
       {/* Weekly Stats */}
       <div className="flex justify-between text-xs text-gray-500">
-        <span>Best Day: {
-          (() => {
+        <span>
+          Best Day:{" "}
+          {(() => {
             const best = [...data].sort((a, b) => b.revenue - a.revenue)[0];
-            return best?.revenue > 0 ? `${best.day} (${formatPrice(best.revenue)})` : 'N/A';
-          })()
-        }</span>
-        <span>Average: {
-          (() => {
-            const avg = data.reduce((sum, d) => sum + d.revenue, 0) / data.length;
+            return best?.revenue > 0
+              ? `${best.day} (${formatPrice(best.revenue)})`
+              : "N/A";
+          })()}
+        </span>
+        <span>
+          Average:{" "}
+          {(() => {
+            const avg =
+              data.reduce((sum, d) => sum + d.revenue, 0) / data.length;
             return formatPrice(avg);
-          })()
-        }</span>
+          })()}
+        </span>
       </div>
     </div>
   );
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-  PLACED: { label: "New", color: "bg-orange-50 text-orange-700 border-orange-200" },
-  PREPARING: { label: "Preparing", color: "bg-amber-50 text-amber-700 border-amber-200" },
-  READY: { label: "Ready", color: "bg-purple-50 text-purple-700 border-purple-200" },
-  DELIVERED: { label: "Delivered", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  CANCELLED: { label: "Cancelled", color: "bg-rose-50 text-rose-700 border-rose-200" },
+  PLACED: {
+    label: "New",
+    color: "bg-orange-50 text-orange-700 border-orange-200",
+  },
+  PREPARING: {
+    label: "Preparing",
+    color: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  READY: {
+    label: "Ready",
+    color: "bg-purple-50 text-purple-700 border-purple-200",
+  },
+  DELIVERED: {
+    label: "Delivered",
+    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  CANCELLED: {
+    label: "Cancelled",
+    color: "bg-rose-50 text-rose-700 border-rose-200",
+  },
 };
 
 export default function ProviderOverviewPage() {
@@ -186,13 +211,15 @@ export default function ProviderOverviewPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard Overview</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Dashboard Overview
+          </h1>
           <p className="text-sm text-gray-500 mt-1">
             Welcome back! Here&#39;s what&#39;s happening with your restaurant.
           </p>
         </div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           onClick={loadDashboardData}
           className="gap-2"
@@ -203,7 +230,7 @@ export default function ProviderOverviewPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Total Revenue"
           value={formatPrice(stats.totalRevenue)}
@@ -270,7 +297,10 @@ export default function ProviderOverviewPage() {
             ) : (
               <div className="space-y-3">
                 {popularMeals.map((meal, idx) => (
-                  <div key={meal.mealId} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                  <div
+                    key={meal.mealId}
+                    className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
+                  >
                     <div className="h-8 w-8 bg-white rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
                       #{idx + 1}
                     </div>
@@ -375,48 +405,61 @@ export default function ProviderOverviewPage() {
 }
 
 // Stat Card Component
-function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
+function StatCard({
+  title,
+  value,
+  icon: Icon,
   subValue,
   trend,
   highlight,
   link,
   linkText,
-}: { 
-  title: string; 
-  value: string; 
-  icon: LucideIcon; 
+}: {
+  title: string;
+  value: string;
+  icon: LucideIcon;
   subValue: string;
-  trend?: 'up' | 'down';
+  trend?: "up" | "down";
   highlight?: boolean;
   link?: string;
   linkText?: string;
 }) {
   return (
-    <Card>
-      <CardContent className="p-5">
+    <Card className="overflow-hidden">
+      <CardContent className="p-3 sm:p-5">
         <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs text-gray-500 mb-1">{title}</p>
-            <p className={`text-xl font-semibold ${highlight ? 'text-amber-600' : 'text-gray-900'}`}>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs sm:text-sm text-gray-500 mb-1 truncate">
+              {title}
+            </p>
+            <p
+              className={`text-base sm:text-xl font-semibold truncate ${
+                highlight ? "text-amber-600" : "text-gray-900"
+              }`}
+            >
               {value}
             </p>
-            <div className="flex items-center gap-1 mt-2">
-              {trend === 'up' && <TrendingUp className="h-3 w-3 text-emerald-600" />}
-              <p className={`text-xs ${highlight ? 'text-amber-600' : 'text-gray-400'}`}>
+            <div className="flex items-center gap-1 mt-1 sm:mt-2">
+              {trend === "up" && (
+                <TrendingUp className="h-3 w-3 text-emerald-600 flex-shrink-0" />
+              )}
+              <p
+                className={`text-xs truncate ${highlight ? "text-amber-600" : "text-gray-400"}`}
+              >
                 {subValue}
               </p>
             </div>
             {link && linkText && (
-              <Link href={link} className="text-xs text-orange-600 hover:underline mt-2 inline-flex items-center gap-1">
+              <Link
+                href={link}
+                className="text-xs text-blue-600 hover:underline mt-1 sm:mt-2 inline-flex items-center gap-1"
+              >
                 {linkText} <ArrowUpRight className="h-3 w-3" />
               </Link>
             )}
           </div>
-          <div className="p-2 bg-gray-50 rounded-lg">
-            <Icon className="h-4 w-4 text-gray-600" />
+          <div className="p-1.5 sm:p-2 bg-gray-50 rounded-lg ml-2 flex-shrink-0">
+            <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
           </div>
         </div>
       </CardContent>
@@ -425,17 +468,17 @@ function StatCard({
 }
 
 // Quick Action Card
-function QuickActionCard({ 
-  href, 
-  icon: Icon, 
-  title, 
-  description, 
-  color 
-}: { 
-  href: string; 
-  icon: LucideIcon; 
-  title: string; 
-  description: string; 
+function QuickActionCard({
+  href,
+  icon: Icon,
+  title,
+  description,
+  color,
+}: {
+  href: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
   color: string;
 }) {
   const colorClasses = {
@@ -449,7 +492,9 @@ function QuickActionCard({
       <Card className="hover:shadow-md transition-shadow cursor-pointer border-dashed border-2 border-gray-200 hover:border-gray-300">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${colorClasses[color as keyof typeof colorClasses]}`}>
+            <div
+              className={`p-2 rounded-lg ${colorClasses[color as keyof typeof colorClasses]}`}
+            >
               <Icon className="h-4 w-4" />
             </div>
             <div>

@@ -18,6 +18,17 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { Roles } from "@/constants/roles";
+import { useRouter } from "next/navigation";
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  image?: string | null;
+}
 
 type OrderStatus = "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
 
@@ -69,16 +80,44 @@ const statusConfig: Record<
 };
 
 export default function MyOrdersPage() {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "ALL">("ALL");
   const [cancelling, setCancelling] = useState<string | null>(null);
 
   useEffect(() => {
-    loadOrders();
-    const interval = setInterval(loadOrders, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    let isMounted = true;
+
+    const checkAndLoad = async () => {
+      try {
+        if (!isMounted) return;
+        const { data: session } = await authClient.getSession();
+        const currentUser = session?.user as unknown as UserData;
+
+        if (!currentUser || currentUser.role !== Roles.customer) {
+          router.push("/");
+          return;
+        }
+        await loadOrders();
+      } catch (err) {
+        console.error("Auth check failed", err);
+        setLoading(false);
+      }
+    };
+
+    checkAndLoad();
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadOrders();
+      }
+    }, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [router]);
 
   const loadOrders = async () => {
     try {
