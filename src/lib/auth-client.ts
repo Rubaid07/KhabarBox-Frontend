@@ -7,13 +7,12 @@ export const authClient = createAuthClient({
   },
 });
 
-// ইউজারের টাইপ এক্সটেন্ড করা
 export type User = {
   id: string;
   email: string;
   name: string;
   image?: string | null;
-  status?: string; // ব্যাকএন্ড থেকে আসা স্ট্যাটাস
+  status?: string;
   isSuspended?: boolean;
 };
 
