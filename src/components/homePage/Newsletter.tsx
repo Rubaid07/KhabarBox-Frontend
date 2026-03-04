@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Send, Gift } from "lucide-react";
+import { Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Newsletter() {
