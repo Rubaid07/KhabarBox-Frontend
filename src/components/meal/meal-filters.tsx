@@ -68,8 +68,10 @@ export default function MealFilters() {
 
   const loadCategories = async () => {
     try {
-      const data = await getAllCategories();
-      setCategories(data);
+      const response = await getAllCategories();
+      const categoryList = Array.isArray(response) ? response : response.data;
+
+      setCategories(categoryList);
     } catch (error) {
       console.error("Failed to load categories");
     }
