@@ -175,7 +175,7 @@ export default function EditMealPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Meal Name *
+                    Meal Name 
                   </label>
                   <input
                     type="text"
@@ -190,7 +190,7 @@ export default function EditMealPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description *
+                    Description 
                   </label>
                   <textarea
                     rows={4}
@@ -206,7 +206,7 @@ export default function EditMealPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price ($) *
+                      Price (BDT)
                     </label>
                     <input
                       type="number"

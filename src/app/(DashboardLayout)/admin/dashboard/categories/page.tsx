@@ -51,6 +51,7 @@ import {
 } from "@/lib/api-categories";
 import { Category } from "@/types/meal";
 import PaginationControls from "@/components/ui/pagination-controls";
+import { useDebouncedCallback } from "use-debounce";
 
 interface MetaData {
   page: number;
@@ -75,7 +76,7 @@ export default function AdminCategoriesPage() {
     totalPages: 1,
   });
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -86,46 +87,63 @@ export default function AdminCategoriesPage() {
   });
 
   const currentPage = Number(searchParams.get("page")) || 1;
+  const currentSearch = searchParams.get("search") || "";
+
+  const handleSearch = useDebouncedCallback((term: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (term) {
+      params.set("search", term);
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  }, 500);
 
   useEffect(() => {
     loadCategories();
-  }, [currentPage]);
+  }, [currentPage, currentSearch]);
 
   const loadCategories = async () => {
-  try {
-    setLoading(true);
-    const response = await getAllCategories() as unknown;
-    const isPaginated = (res: unknown): res is PaginatedResponse => {
-      const r = res as PaginatedResponse;
-      return !!(r && r.data && r.meta);
-    };
-
-    if (isPaginated(response)) {
-      setCategories(response.data);
-      setMeta(response.meta);
-    } 
-    else if (Array.isArray(response)) {
-      const dataArray = response as Category[];
-      const total = dataArray.length;
-      const totalPages = Math.ceil(total / 10);
-      const start = (currentPage - 1) * 10;
-      const end = start + 10;
-      
-      setCategories(dataArray.slice(start, end));
-      setMeta({
-        page: currentPage,
+    try {
+      setLoading(true);
+      const response = await getAllCategories({ 
+        page: currentPage, 
         limit: 10,
-        total: total,
-        totalPages: totalPages,
-      });
+        search: currentSearch 
+      }) as unknown;
+      
+      const isPaginated = (res: unknown): res is PaginatedResponse => {
+        const r = res as PaginatedResponse;
+        return !!(r && r.data && r.meta);
+      };
+
+      if (isPaginated(response)) {
+        setCategories(response.data);
+        setMeta(response.meta);
+      } 
+      else if (Array.isArray(response)) {
+        const dataArray = response as Category[];
+        const total = dataArray.length;
+        const totalPages = Math.ceil(total / 10);
+        const start = (currentPage - 1) * 10;
+        const end = start + 10;
+        
+        setCategories(dataArray.slice(start, end));
+        setMeta({
+          page: currentPage,
+          limit: 10,
+          total: total,
+          totalPages: totalPages,
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to load categories";
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load categories";
-    toast.error(message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const resetForm = () => {
     setFormData({ name: "" });
@@ -207,19 +225,21 @@ export default function AdminCategoriesPage() {
     setIsDeleteOpen(true);
   };
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const clearSearch = () => {
+    setSearchQuery("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  };
 
   if (loading && categories.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-orange-200 rounded-full animate-spin">
-            <div className="absolute top-0 left-0 w-16 h-16 border-4 border-orange-600 rounded-full border-t-transparent animate-spin" />
+
+            <div className="absolute top-0 left-0 w-6 h-6 border-2 border-orange-600 rounded-full border-t-transparent animate-spin" />
           </div>
-          <p className="text-sm text-gray-500 mt-4">Loading categories...</p>
-        </div>
       </div>
     );
   }
@@ -292,19 +312,27 @@ export default function AdminCategoriesPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search categories by name..."
-              className="pl-10 focus-visible:ring-orange-500"
+              className="pl-10 pr-10 focus-visible:ring-orange-500"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                handleSearch(e.target.value);
+              }}
             />
-            {searchQuery && (
+            {currentSearch && (
               <button
-                onClick={() => setSearchQuery("")}
+                onClick={clearSearch}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
+          {currentSearch && (
+            <p className="text-sm text-gray-500 mt-2">
+              Searching for: <span className="font-medium text-orange-600">&quot;{currentSearch}&quot;</span>
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -313,11 +341,11 @@ export default function AdminCategoriesPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium flex items-center gap-2">
             <Tag className="h-5 w-5 text-orange-500" />
-            All Categories
+            All Categories {currentSearch && `• Results for "${currentSearch}"`}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredCategories.length === 0 ? (
+          {categories.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mb-4">
                 <Utensils className="h-10 w-10 text-orange-300" />
@@ -351,7 +379,7 @@ export default function AdminCategoriesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCategories.map((category) => (
+                  {categories.map((category) => (
                     <TableRow key={category.id} className="hover:bg-gray-50">
                       <TableCell>
                         <div className="flex items-center gap-3">

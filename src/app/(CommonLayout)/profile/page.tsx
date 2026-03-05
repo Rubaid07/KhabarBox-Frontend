@@ -10,6 +10,7 @@ import {
   Store,
   Link as LinkIcon,
   Image as ImageIcon,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -247,7 +248,6 @@ export default function ProfilePage() {
                           restaurantAddress: e.target.value,
                         })
                       }
-                      placeholder="Restaurant address"
                     />
                   ) : (
                     <p className="p-3 bg-gray-100 rounded-lg">
@@ -257,10 +257,32 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
+                  <Label className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> Opening Hours
+                  </Label>
+                  {editMode ? (
+                    <Input
+                      value={formData.openingHours || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          openingHours: e.target.value,
+                        })
+                      }
+                      placeholder="Ex: 10:00 AM - 11:00 PM"
+                    />
+                  ) : (
+                    <p className="p-3 bg-gray-100 rounded-lg">
+                      {profile.openingHours || "Not set"}
+                    </p>
+                  )}
+                </div>
+
+                <div>
                   <Label>Description</Label>
                   {editMode ? (
                     <textarea
-                      className="w-full p-3 border rounded-lg min-h-[100px] focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full p-3 border rounded-lg min-h-[100px] focus:ring-2 focus:ring-orange-500"
                       value={formData.restaurantDescription || ""}
                       onChange={(e) =>
                         setFormData({

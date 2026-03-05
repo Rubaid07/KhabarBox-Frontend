@@ -238,7 +238,7 @@ export default function MyMealsPage() {
                     </p>
                   </div>
                   <span className="text-lg font-bold text-orange-600">
-                    ${meal.price}
+                    BDT {meal.price}
                   </span>
                 </div>
 

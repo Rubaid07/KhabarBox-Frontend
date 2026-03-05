@@ -10,22 +10,42 @@ import Image from "next/image";
 const cuisineImages: Record<string, string> = {
   italian: "https://images.unsplash.com/photo-1498579150354-977475b7ea0b?w=400",
   chinese: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400",
-  indian: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400",
   mexican: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400",
   japanese:
     "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400",
   thai: "https://images.unsplash.com/photo-1559314809-0d155014e29e?w=400",
-  american:
-    "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
-  mediterranean:
-    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400",
   korean: "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400",
   vietnamese:
     "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400",
+
+  fastfood:
+    "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
+  pizza: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400",
+  burger: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400",
+
+  desserts: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400",
+  icecream: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
+  cake: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",
+
+  coffee: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400",
+  juice: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400",
+
+  healthy: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
+  vegetarian:
+    "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400",
 };
 
 const defaultCuisineImage =
   "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400";
+
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 export default function TrendingCuisines() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -77,8 +97,9 @@ export default function TrendingCuisines() {
 
   const loadCategories = async () => {
     try {
-      const data = await getTrendingCategories(12);
-      setCategories(data);
+      const data = await getTrendingCategories(15);
+      const shuffledData = shuffleArray(data);
+      setCategories(shuffledData);
     } catch (error) {
       console.error("Failed to load categories");
     } finally {
@@ -181,7 +202,7 @@ export default function TrendingCuisines() {
           <div
             className="flex gap-4 transition-transform duration-500 ease-out"
             style={{
-              transform: `translateX(-${currentIndex * (100 / itemsPerView + 1.5)}%)`,
+              transform: `translateX(-${currentIndex * (100 / itemsPerView + .2)}%)`,
             }}
           >
             {categories.map((category) => (

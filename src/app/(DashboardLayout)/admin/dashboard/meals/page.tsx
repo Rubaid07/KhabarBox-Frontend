@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   ChefHat,
   Search,
@@ -10,7 +10,6 @@ import {
   Trash2,
   Store,
   Tag,
-  DollarSign,
   RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -68,7 +67,6 @@ interface MetaData {
 }
 
 export default function AdminMealsPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [meta, setMeta] = useState<MetaData>({
@@ -84,7 +82,6 @@ export default function AdminMealsPage() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  // Get current page from URL or default to 1
   const currentPage = Number(searchParams.get("page")) || 1;
 
   useEffect(() => {
@@ -100,7 +97,6 @@ export default function AdminMealsPage() {
       if (!res.ok) throw new Error("Failed to fetch meals");
       const result = await res.json();
 
-      // Handle different API response structures
       const mealsData = result.data || result.meals || result;
       const metaData = result.metaData ||
         result.meta || {
@@ -157,7 +153,6 @@ export default function AdminMealsPage() {
     setDeleteDialogOpen(true);
   };
 
-  // Filter meals client-side
   const filteredMeals = meals.filter(
     (m) =>
       m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -259,7 +254,7 @@ export default function AdminMealsPage() {
                               <p className="font-medium text-gray-900">
                                 {meal.name}
                               </p>
-                              <p className="text-xs text-gray-500 line-clamp-1 max-w-[200px]">
+                              <p className="text-xs text-gray-500 line-clamp-1 max-w-50">
                                 {meal.description || "No description"}
                               </p>
                               {meal.dietaryTags.length > 0 && (
@@ -294,7 +289,6 @@ export default function AdminMealsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <DollarSign className="h-4 w-4 text-gray-400" />
                             <span className="font-medium">
                               {formatPrice(meal.price)}
                             </span>

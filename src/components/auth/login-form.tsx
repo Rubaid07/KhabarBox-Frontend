@@ -67,8 +67,8 @@ export function LoginForm() {
       toast.success("Welcome back!");
       router.push("/");
       router.refresh();
-    } catch (err: any) {
-      const errorMessage = err.message || "Failed to login";
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to login";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -81,10 +81,11 @@ export function LoginForm() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "http://localhost:3000",
+        callbackURL: process.env.FRONTEND_URL || "http://localhost:3000",
       });
-    } catch (err: any) {
-      toast.error(err.message || "Google login failed");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Google login failed";
+      toast.error(errorMessage);
       setIsLoading(false);
     }
   };

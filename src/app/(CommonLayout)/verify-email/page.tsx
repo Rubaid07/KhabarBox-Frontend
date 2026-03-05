@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client"; 
+import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -14,35 +14,50 @@ export default function VerifyEmailPage() {
   const verificationStarted = useRef(false);
 
   const [status, setStatus] = useState<"loading" | "success" | "error">(
-    token ? "loading" : "error"
+    token ? "loading" : "error",
   );
   const [message, setMessage] = useState(
-    token ? "Verifying your email address..." : "Invalid or missing verification token."
+    token
+      ? "Verifying your email address..."
+      : "Invalid or missing verification token.",
   );
 
-  const handleVerify = useCallback(async (tokenValue: string) => {
-    try {
-      const { data, error } = await authClient.verifyEmail({
-        query: { token: tokenValue },
-      });
+  const handleVerify = useCallback(
+    async (tokenValue: string) => {
+      try {
+        const { data, error } = await authClient.verifyEmail({
+          query: { token: tokenValue },
+        });
 
-      if (error) {
-        const errorMsg = error.code === "TOKEN_EXPIRED" 
-          ? "Your link has expired." 
-          : "Invalid or used link.";
+        if (error) {
+          const errorMsg =
+            error.code === "TOKEN_EXPIRED"
+              ? "Your link has expired."
+              : "Invalid or used link.";
+          setStatus("error");
+          setMessage(errorMsg);
+          return;
+        }
+
+        setStatus("success");
+        setMessage("Email verified successfully! Logging you in...");
+        toast.success("Verified! Redirecting to home...");
+
+        if (!error) {
+          setStatus("success");
+          toast.success("Email verified successfully!");
+
+          setTimeout(() => {
+            window.location.assign("/");
+          }, 1500);
+        }
+      } catch (err) {
         setStatus("error");
-        setMessage(errorMsg);
-        return;
+        setMessage("An unexpected error occurred.");
       }
-
-      setStatus("success");
-      setMessage("Email verified successfully!");
-      toast.success("Email verified!");
-    } catch (err) {
-      setStatus("error");
-      setMessage("An unexpected error occurred.");
-    }
-  }, []);
+    },
+    [router],
+  );
 
   useEffect(() => {
     const startVerification = async () => {
@@ -61,8 +76,8 @@ export default function VerifyEmailPage() {
         {status === "loading" && (
           <div className="space-y-4">
             <div className="relative w-20 h-20 mx-auto">
-                <div className="absolute inset-0 border-4 border-orange-100 rounded-full"></div>
-                <Loader2 className="w-20 h-20 text-orange-500 animate-spin relative z-10" />
+              <div className="absolute inset-0 border-4 border-orange-100 rounded-full"></div>
+              <Loader2 className="w-20 h-20 text-orange-500 animate-spin relative z-10" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Verifying...</h2>
             <p className="text-gray-500">{message}</p>
@@ -75,14 +90,17 @@ export default function VerifyEmailPage() {
               <CheckCircle2 className="w-12 h-12 text-green-500" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">Email Verified!</h2>
-              <p className="text-gray-600 px-4">{message}</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Email Verified!
+              </h2>
+              <p className="text-green-600 font-medium">{message}</p>
             </div>
+            {/* 🔥 বাটনটি এখন ডিরেক্ট হোমপেজে নিয়ে যাবে */}
             <button
-              onClick={() => router.push("/login")}
+              onClick={() => router.push("/")}
               className="flex items-center justify-center gap-2 w-full bg-orange-600 text-white py-4 rounded-2xl font-semibold hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"
             >
-              Continue to Login <ArrowRight className="w-5 h-5" />
+              Go to Home <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         )}
@@ -93,19 +111,18 @@ export default function VerifyEmailPage() {
               <XCircle className="w-12 h-12 text-red-500" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">Link Expired</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Verification Failed
+              </h2>
               <p className="text-gray-600">{message}</p>
             </div>
             <div className="pt-4 space-y-3">
-                <Link
+              <Link
                 href="/login"
                 className="block w-full py-3 px-4 bg-gray-100 text-gray-700 rounded-2xl font-medium hover:bg-gray-200 transition-colors"
-                >
+              >
                 Back to Login
-                </Link>
-                <p className="text-sm text-gray-400">
-                    Need help? <Link href="/support" className="text-orange-500">Contact Support</Link>
-                </p>
+              </Link>
             </div>
           </div>
         )}

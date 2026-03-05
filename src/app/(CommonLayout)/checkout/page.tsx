@@ -96,8 +96,14 @@ export default function CheckoutPage() {
 
       toast.success("Order placed successfully!");
 
-      if (orders && orders.length > 0) {
-        router.push(`/orders/${orders[0].id}`);
+      if (Array.isArray(orders)) {
+        if (orders.length > 0) {
+          router.push(`/orders/${orders[0].id}`);
+        } else {
+          router.push("/orders");
+        }
+      } else if (orders && "id" in orders) {
+        router.push(`/orders/${orders.id}`);
       } else {
         router.push("/orders");
       }

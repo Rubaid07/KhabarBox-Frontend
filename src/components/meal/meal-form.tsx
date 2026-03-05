@@ -171,7 +171,7 @@ export default function MealForm() {
             
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Meal Name *
+                  Meal Name 
                 </label>
                 <input
                   type="text"
@@ -185,7 +185,7 @@ export default function MealForm() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
+                  Description
                 </label>
                 <textarea
                   name="description"
@@ -200,7 +200,7 @@ export default function MealForm() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price ($) *
+                    Price (BDT)
                   </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -219,7 +219,7 @@ export default function MealForm() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category *
+                    Category 
                   </label>
                   <select
                     name="categoryId"
@@ -326,19 +326,20 @@ export default function MealForm() {
               {imagePreview ? (
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
                   <Image
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                    onError={() => setImagePreview("")}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImagePreview("");
-                      setFormData((prev) => ({ ...prev, imageUrl: "" }));
-                    }}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                  >
+      src={imagePreview}
+      alt="Preview"
+      fill 
+      className="object-cover"
+      unoptimized 
+    />
+    <button
+      type="button"
+      onClick={() => {
+        setImagePreview("");
+        setFormData((prev) => ({ ...prev, imageUrl: "" }));
+      }}
+      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all z-10"
+    >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
