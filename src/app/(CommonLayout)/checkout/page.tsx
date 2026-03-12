@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   Package,
   Clock,
+  Banknote,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -247,7 +248,7 @@ export default function CheckoutPage() {
                       Pay when you receive
                     </p>
                   </div>
-                  <span className="text-2xl">💵</span>
+                  <Banknote className="w-6 h-6 text-green-600" />
                 </label>
 
                 <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-xl opacity-50">
@@ -258,7 +259,7 @@ export default function CheckoutPage() {
                     </p>
                     <p className="text-sm text-gray-500">Coming soon</p>
                   </div>
-                  <span className="text-2xl">💳</span>
+                  <CreditCard className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
             </div>
