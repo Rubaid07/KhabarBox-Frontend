@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { RegisterForm } from "@/components/auth/register-form";
 
 export default function RegisterPage() {
@@ -9,13 +8,13 @@ export default function RegisterPage() {
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
         By creating an account, you agree to our{" "}
-        <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
+        <button className="underline underline-offset-4 hover:text-primary">
           Terms of Service
-        </Link>{" "}
+        </button>{" "}
         and{" "}
-        <Link href="/privacy" className="underline underline-offset-4 hover:text-primary">
+        <button className="underline underline-offset-4 hover:text-primary">
           Privacy Policy
-        </Link>
+        </button>
       </p>
     </div>
   );

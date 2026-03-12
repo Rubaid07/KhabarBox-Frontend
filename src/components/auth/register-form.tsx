@@ -137,11 +137,16 @@ export function RegisterForm() {
                   <Input
                     id="name"
                     placeholder="John Doe"
-                    className="pl-10"
+                    className={`pl-10 ${errors.name ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                     disabled={isLoading}
                     {...register("name")}
                   />
                 </div>
+                {errors.name && (
+                  <p className="text-xs text-red-500 font-medium">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -152,11 +157,16 @@ export function RegisterForm() {
                     id="email"
                     type="email"
                     placeholder="john@example.com"
-                    className="pl-10"
+                    className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
                     disabled={isLoading}
                     {...register("email")}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-xs text-red-500 font-medium">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -167,11 +177,16 @@ export function RegisterForm() {
                     id="phone"
                     type="tel"
                     placeholder="017XXXXXXXX"
-                    className="pl-10"
+                    className={`pl-10 ${errors.phone ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                     disabled={isLoading}
                     {...register("phone")}
                   />
                 </div>
+                {errors.phone && (
+                  <p className="text-xs text-red-500 font-medium">
+                    {errors.phone.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -181,7 +196,7 @@ export function RegisterForm() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    className="pl-10 pr-10"
+                    className={`pl-10 pr-10 ${errors.password ? "border-red-500" : ""}`}
                     disabled={isLoading}
                     {...register("password")}
                   />
@@ -197,6 +212,11 @@ export function RegisterForm() {
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-xs text-red-500 font-medium leading-tight">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -206,10 +226,18 @@ export function RegisterForm() {
                   <Store className="h-5 w-5" />
                   <h3>Restaurant Information</h3>
                 </div>
-                <Input
-                  placeholder="Restaurant Name"
-                  {...register("restaurantName")}
-                />
+                <div className="space-y-1">
+                  <Input
+                    placeholder="Restaurant Name"
+                    className={errors.restaurantName ? "border-red-500" : ""}
+                    {...register("restaurantName")}
+                  />
+                  {errors.restaurantName && (
+                    <p className="text-xs text-red-500 font-medium">
+                      {errors.restaurantName.message}
+                    </p>
+                  )}
+                </div>
                 <Input placeholder="Address" {...register("address")} />
               </div>
             )}
