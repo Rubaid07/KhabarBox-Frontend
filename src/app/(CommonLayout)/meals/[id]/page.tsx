@@ -122,7 +122,6 @@ export default function SingleMealPage() {
   const canDeleteReview = (review: Review) => {
     return (
       review.customer?.id === currentUserId ||
-      currentUserRole === "PROVIDER" ||
       currentUserRole === "ADMIN"
     );
   };
